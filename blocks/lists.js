@@ -1,3 +1,7 @@
+if(typeof Blockly.Blocks.lists === 'undefined') {
+  Blockly.Blocks.lists = {};
+}
+
 Blockly.Blocks.lists.HUE = 100;
 
 Blockly.Blocks['lists_append'] = {

@@ -48,9 +48,10 @@ Blockly.Variables.flyoutOptions = {
 // Construct the blocks required by the flyout for the variable category.
 Blockly.Variables.flyoutCategory = function(workspace) {
   var xmlList = [];
-
   var options = Blockly.Variables.flyoutOptions;
 
+  // Detect if we're in Blockly or Scratch
+  var scratchMode = !!(Blockly.registerButtonCallback);
   if(options.any) {
     if(workspace) {
       var fullVariableList = workspace.variableList;
@@ -76,6 +77,13 @@ Blockly.Variables.flyoutCategory = function(workspace) {
     if(options.anyButton) {
       var button = goog.dom.createDom('button');
       button.setAttribute('text', Blockly.Msg.NEW_VARIABLE);
+      if(scratchMode) {
+        // Scratch
+        button.setAttribute('callbackKey', 'CREATE_VARIABLE');
+        Blockly.registerButtonCallback('CREATE_VARIABLE', function(button) {
+          Blockly.Variables.createVariable(button.getTargetWorkspace());
+        });
+      }
       xmlList.push(button);
     }
   } else {
@@ -85,13 +93,27 @@ Blockly.Variables.flyoutCategory = function(workspace) {
   var variableList = options.fixed.concat(fullVariableList);
 
   if (variableList.length > 0) {
-    if (Blockly.Blocks['variables_get']) {
+    if(scratchMode) {
+      var blockNames = {
+        get: 'data_variable',
+        set: 'data_setvariableto',
+        incr: 'data_changevariableby'
+        };
+    } else {
+      var blockNames = {
+        get: 'variables_get',
+        set: 'variables_set',
+        incr: 'math_change'
+        };
+    }
+
+    if (options.includedBlocks.get && Blockly.Blocks[blockNames.get]) {
       for(var i=0; i<variableList.length; i++) {
         // <block type="variables_get" gap="8">
         //   <field name="VAR">item</field>
         // </block>
         var block = goog.dom.createDom('block');
-        block.setAttribute('type', 'variables_get');
+        block.setAttribute('type', blockNames.get);
         if (i < options.fixed.length) {
           block.setAttribute('editable', 'false');
         }
@@ -101,15 +123,19 @@ Blockly.Variables.flyoutCategory = function(workspace) {
           block.setAttribute('gap', 8);
         }
 
-        var field = goog.dom.createDom('field', null, variableList[i]);
-        field.setAttribute('name', 'VAR');
+        if(scratchMode) {
+          var field = Blockly.Variables.createVariableDom_(variableList[i]);
+        } else {
+          var field = goog.dom.createDom('field', null, variableList[i]);
+          field.setAttribute('name', 'VAR');
+        }
 
         block.appendChild(field);
         xmlList.push(block);
       }
     }
 
-    if (options.includedBlocks.set && Blockly.Blocks['variables_set']) {
+    if (options.includedBlocks.set && Blockly.Blocks[blockNames.set]) {
       for(var i=0; i<variableList.length; i++) {
         // <block type="variables_set" gap="20">
         //   <field name="VAR">item</field>
@@ -119,7 +145,7 @@ Blockly.Variables.flyoutCategory = function(workspace) {
         }
 
         var block = goog.dom.createDom('block');
-        block.setAttribute('type', 'variables_set');
+        block.setAttribute('type', blockNames.set);
         if (i < options.fixed.length) {
           block.setAttribute('editable', 'false');
         }
@@ -129,14 +155,20 @@ Blockly.Variables.flyoutCategory = function(workspace) {
           block.setAttribute('gap', 8);
         }
 
-        var field = goog.dom.createDom('field', null, variableList[i]);
-        field.setAttribute('name', 'VAR');
+        if(scratchMode) {
+          var field = Blockly.Variables.createVariableDom_(variableList[i]);
+          block.appendChild(field);
+          block.appendChild(Blockly.Variables.createTextDom_());
+        } else {
+          var field = goog.dom.createDom('field', null, variableList[i]);
+          field.setAttribute('name', 'VAR');
+          block.appendChild(field);
+        }
 
-        block.appendChild(field);
         xmlList.push(block);
       }
     }
-    if (options.includedBlocks.incr && Blockly.Blocks['math_change']) {
+    if (options.includedBlocks.incr && Blockly.Blocks[blockNames.incr]) {
       for(var i=0; i<variableList.length; i++) {
         // <block type="math_change">
         //   <value name="DELTA">
@@ -150,7 +182,7 @@ Blockly.Variables.flyoutCategory = function(workspace) {
         }
 
         var block = goog.dom.createDom('block');
-        block.setAttribute('type', 'math_change');
+        block.setAttribute('type', blockNames.incr);
         if (i < options.fixed.length) {
           block.setAttribute('editable', 'false');
         }
@@ -159,21 +191,27 @@ Blockly.Variables.flyoutCategory = function(workspace) {
         } else {
           block.setAttribute('gap', 8);
         }
-        var value = goog.dom.createDom('value');
-        value.setAttribute('name', 'DELTA');
-        block.appendChild(value);
+        if(scratchMode) {
+          var field = Blockly.Variables.createVariableDom_(variableList[i]);
+          block.appendChild(field);
+          block.appendChild(Blockly.Variables.createMathNumberDom_())
+        } else {
+          var value = goog.dom.createDom('value');
+          value.setAttribute('name', 'DELTA');
+          block.appendChild(value);
 
-        var field = goog.dom.createDom('field', null, variableList[i]);
-        field.setAttribute('name', 'VAR');
-        block.appendChild(field);
+          var shadowBlock = goog.dom.createDom('shadow');
+          shadowBlock.setAttribute('type', 'math_number');
+          value.appendChild(shadowBlock);
 
-        var shadowBlock = goog.dom.createDom('shadow');
-        shadowBlock.setAttribute('type', 'math_number');
-        value.appendChild(shadowBlock);
+          var numberField = goog.dom.createDom('field', null, '1');
+          numberField.setAttribute('name', 'NUM');
+          shadowBlock.appendChild(numberField);
 
-        var numberField = goog.dom.createDom('field', null, '1');
-        numberField.setAttribute('name', 'NUM');
-        shadowBlock.appendChild(numberField);
+          var field = goog.dom.createDom('field', null, variableList[i]);
+          field.setAttribute('name', 'VAR');
+          block.appendChild(field);
+        }
 
         xmlList.push(block);
       }
@@ -484,6 +522,10 @@ Blockly.Blocks['input_line'] = {
     this.setTooltip(Blockly.Msg.INPUT_LINE_TOOLTIP);
   }
 };
+
+if(typeof Blockly.Blocks.lists === 'undefined') {
+  Blockly.Blocks.lists = {};
+}
 
 Blockly.Blocks.lists.HUE = 100;
 
