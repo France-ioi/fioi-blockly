@@ -2,6 +2,10 @@
 
 Additions and changes to [Blockly](https://github.com/google/blockly) for France-IOI.
 
+## Requirements
+
+Requires buttonsAndMessages from [bebras-modules](https://github.com/France-ioi/bebras-modules) for variable prompts.
+
 ## Usage
 
 Include the file `dist/fioi-blockly.min.js` after including Blockly javascript files, and before using Blockly.

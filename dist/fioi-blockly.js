@@ -1,3 +1,25 @@
+// Adapt to our custom Blockly.Variables.promptName behavior
+Blockly.FieldVariable.prototype.classValidator = function(text) {
+  var workspace = this.sourceBlock_.workspace;
+  if (text == Blockly.Msg.RENAME_VARIABLE) {
+    var oldVar = this.getText();
+    Blockly.hideChaff();
+    var cb = function(text) {
+      if (text) {
+        workspace.renameVariable(oldVar, text);
+      }
+    };
+    text = Blockly.Variables.promptName(
+        Blockly.Msg.RENAME_VARIABLE_TITLE.replace('%1', oldVar), oldVar, cb);
+    return null;
+  } else if (text == Blockly.Msg.DELETE_VARIABLE.replace('%1',
+      this.getText())) {
+    workspace.deleteVariable(this.getText());
+    return null;
+  }
+  return undefined;
+};
+
 /**
  * Recalculate a horizontal scrollbar's location on the screen and path length.
  * This should be called when the layout or size of the window has changed.
@@ -241,6 +263,47 @@ Blockly.Variables.flyoutCategory = function(workspace) {
   return xmlList;
 };
 
+// Adapt to our custom Blockly.Variables.promptName behavior
+// We also return null instead of the variable name as anyway no call seems to
+// read the return value
+Blockly.Variables.createVariable = function(workspace) {
+  var cb = function(text) {
+    if (text) {
+      if (workspace.variableIndexOf(text) != -1) {
+        displayHelper.showPopupMessage(Blockly.Msg.VARIABLE_ALREADY_EXISTS.replace('%1',
+            text.toLowerCase()), 'blanket');
+      } else {
+        workspace.createVariable(text);
+      }
+    }
+  }
+  Blockly.Variables.promptName(Blockly.Msg.NEW_VARIABLE_TITLE, '', cb);
+  return null;
+};
+
+/**
+ * Prompt the user for a new variable name.
+ * @param {string} promptText The string of the prompt.
+ * @param {string} defaultText The default value to show in the prompt's field.
+ * @return {?string} The new variable name, or null if the user picked
+ *     something illegal.
+ */
+Blockly.Variables.promptName = function(promptText, defaultText, callback) {
+  var cb = function (newVar) {
+    // Merge runs of whitespace.  Strip leading and trailing whitespace.
+    // Beyond this, all names are legal.
+    if (newVar) {
+      newVar = newVar.replace(/[\s\xa0]+/g, ' ').replace(/^ | $/g, '');
+      if (newVar == Blockly.Msg.RENAME_VARIABLE ||
+          newVar == Blockly.Msg.NEW_VARIABLE) {
+        // Ok, not ALL names are legal...
+        newVar = null;
+      }
+    };
+    callback(newVar);
+  };
+  displayHelper.showPopupMessage(promptText, 'input', null, cb);
+};
 
 Blockly.Msg.VARIABLES_DEFAULT_NAME = "element";
 Blockly.Msg.TEXT_APPEND_VARIABLE = Blockly.Msg.VARIABLES_DEFAULT_NAME;
