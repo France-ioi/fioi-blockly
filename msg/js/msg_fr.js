@@ -28,3 +28,5 @@ Blockly.Msg.INPUT_WORD = "lire un mot";
 Blockly.Msg.INPUT_WORD_TOOLTIP = "Lit un mot sur l'entrée du programme.";
 Blockly.Msg.INPUT_LINE = "lire une ligne";
 Blockly.Msg.INPUT_LINE_TOOLTIP = "Lit une ligne sur l'entrée du programme.";
+
+Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer la variable '%1', utilisée par la procédure '%2'.";
