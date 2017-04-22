@@ -784,6 +784,8 @@ Blockly.Msg.INPUT_LINE_TOOLTIP = "Lit une ligne sur l'entrée du programme.";
 
 Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer la variable '%1', utilisée par la procédure '%2'.";
 
+Blockly.Msg.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
+
 Blockly.Blocks.dicts = {};
 
 Blockly.Blocks.dicts.HUE = 0;
