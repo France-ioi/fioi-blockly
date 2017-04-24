@@ -42,5 +42,5 @@ Blockly.Msg.INPUT_LINE_TOOLTIP = "Lit une ligne sur l'entrée du programme.";
 Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer la variable '%1', utilisée par la procédure '%2'.";
 
 Blockly.Msg.DATA_REPLACEITEMOFLIST_TITLE = "remplacer l'élément %1 de la liste %2 par %3";
-Blockly.Msg.DATA_ITEMOFLIST_TITLE = "obtenir %1 dans la liste %2";
+Blockly.Msg.DATA_ITEMOFLIST_TITLE = "élément %1 dans %2";
 Blockly.Msg.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
