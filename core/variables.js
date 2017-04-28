@@ -222,5 +222,9 @@ Blockly.Variables.promptName = function(promptText, defaultText, callback) {
     };
     callback(newVar);
   };
-  displayHelper.showPopupMessage(promptText, 'input', null, cb);
+  if(defaultText) {
+    displayHelper.showPopupMessage(promptText, 'input', null, cb, Blockly.Msg.UNDO, null, defaultText);
+  } else {
+    displayHelper.showPopupMessage(promptText, 'input', null, cb);
+  }
 };
