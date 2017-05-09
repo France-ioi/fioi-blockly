@@ -15,3 +15,15 @@ Blockly.WorkspaceSvg.prototype.reportValue = function(id, value) {
   Blockly.DropDownDiv.setColour("#FFFFFF", "#AAAAAA");
   Blockly.DropDownDiv.showPositionedByBlock(this, block);
 };
+
+// Fix issue when unloading
+Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
+  var translation = 'translate(' + x + ',' + y + ') ' +
+      'scale(' + this.scale + ')';
+  if(this.svgBlockCanvas_) {
+    this.svgBlockCanvas_.setAttribute('transform', translation);
+  }
+  if(this.svgBubbleCanvas_) {
+    this.svgBubbleCanvas_.setAttribute('transform', translation);
+  }
+};
