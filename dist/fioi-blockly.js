@@ -894,6 +894,9 @@ Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
   if(this.svgBubbleCanvas_) {
     this.svgBubbleCanvas_.setAttribute('transform', translation);
   }
+  if(this.dragSurface) {
+    this.dragSurface.translateAndScaleGroup(x, y, this.scale);
+  }
 };
 
 FioiBlockly.Msg.fr = {};
