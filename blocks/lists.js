@@ -38,6 +38,7 @@ Blockly.Blocks['lists_append'] = {
 };
 
 // Modify order of fields
+FioiBlockly.OriginalBlocks['lists_setIndex'] = Blockly.Blocks['lists_setIndex'];
 Blockly.Blocks['lists_setIndex'] = {
   /**
    * Block for setting the element at index.

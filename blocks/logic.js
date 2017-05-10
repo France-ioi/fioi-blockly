@@ -1,3 +1,6 @@
+FioiBlockly.OriginalBlocks['logic_compare'] = Blockly.Blocks['logic_compare'];
+
+// Use standard operator names (for instance '!=' instead of '≠')
 Blockly.Blocks['logic_compare'] = {
   /**
    * Block for comparison operator.
