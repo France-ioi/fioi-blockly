@@ -13,6 +13,10 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
     var block = goog.dom.createDom('block');
     block.setAttribute('type', 'procedures_defnoreturn');
     block.setAttribute('gap', 16);
+    var nameField = goog.dom.createDom('field', null,
+        Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE);
+    nameField.setAttribute('name', 'NAME');
+    block.appendChild(nameField);
     xmlList.push(block);
   }
   if (incl.ret && Blockly.Blocks['procedures_defreturn']) {
@@ -20,6 +24,10 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
     var block = goog.dom.createDom('block');
     block.setAttribute('type', 'procedures_defreturn');
     block.setAttribute('gap', 16);
+    var nameField = goog.dom.createDom('field', null,
+        Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE);
+    nameField.setAttribute('name', 'NAME');
+    block.appendChild(nameField);
     xmlList.push(block);
   }
   if (incl.ifret && Blockly.Blocks['procedures_ifreturn']) {

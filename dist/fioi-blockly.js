@@ -492,6 +492,10 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
     var block = goog.dom.createDom('block');
     block.setAttribute('type', 'procedures_defnoreturn');
     block.setAttribute('gap', 16);
+    var nameField = goog.dom.createDom('field', null,
+        Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE);
+    nameField.setAttribute('name', 'NAME');
+    block.appendChild(nameField);
     xmlList.push(block);
   }
   if (incl.ret && Blockly.Blocks['procedures_defreturn']) {
@@ -499,6 +503,10 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
     var block = goog.dom.createDom('block');
     block.setAttribute('type', 'procedures_defreturn');
     block.setAttribute('gap', 16);
+    var nameField = goog.dom.createDom('field', null,
+        Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE);
+    nameField.setAttribute('name', 'NAME');
+    block.appendChild(nameField);
     xmlList.push(block);
   }
   if (incl.ifret && Blockly.Blocks['procedures_ifreturn']) {
@@ -887,14 +895,6 @@ Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
     this.svgBubbleCanvas_.setAttribute('transform', translation);
   }
 };
-
-Blockly.Xml.domToWorkspaceOriginal = Blockly.Xml.domToWorkspace;
-
-Blockly.Xml.domToWorkspace = function(xml, workspace) {
-  Blockly.disableRenameEvents = true;
-  Blockly.Xml.domToWorkspaceOriginal(xml, workspace);
-  Blockly.disableRenameEvents = false;
-}
 
 FioiBlockly.Msg.fr = {};
 
@@ -1479,34 +1479,55 @@ Blockly.Blocks['logic_compare'] = {
 };
 
 
-Blockly.Blocks['procedures_callnoreturn'].renameProcedure = function(oldName, newName, force) {
-  if (!force && Blockly.disableRenameEvents) { return; }
-  if (Blockly.Names.equals(oldName, this.getProcedureCall())) {
-    this.setFieldValue(newName, 'NAME');
-    this.setTooltip(
-        (this.outputConnection ? Blockly.Msg.PROCEDURES_CALLRETURN_TOOLTIP :
-         Blockly.Msg.PROCEDURES_CALLNORETURN_TOOLTIP)
-        .replace('%1', newName));
+Blockly.Blocks['procedures_defnoreturn'].init = function() {
+  var nameField = new Blockly.FieldTextInput('',
+      Blockly.Procedures.rename);
+  nameField.setSpellcheck(false);
+  this.appendDummyInput()
+      .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE)
+      .appendField(nameField, 'NAME')
+      .appendField('', 'PARAMS');
+  this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+  if ((this.workspace.options.comments ||
+       (this.workspace.options.parentWorkspace &&
+        this.workspace.options.parentWorkspace.options.comments)) &&
+      Blockly.Msg.PROCEDURES_DEFNORETURN_COMMENT) {
+    this.setCommentText(Blockly.Msg.PROCEDURES_DEFNORETURN_COMMENT);
   }
+  this.setColour(Blockly.Blocks.procedures.HUE);
+  this.setTooltip(Blockly.Msg.PROCEDURES_DEFNORETURN_TOOLTIP);
+  this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFNORETURN_HELPURL);
+  this.arguments_ = [];
+  this.setStatements_(true);
+  this.statementConnection_ = null;
 };
 
-Blockly.Blocks['procedures_callnoreturn'].domToMutation = function(xmlElement) {
-  var name = xmlElement.getAttribute('name');
-  this.renameProcedure(this.getProcedureCall(), name, true);
-  var args = [];
-  var paramIds = [];
-  for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
-    if (childNode.nodeName.toLowerCase() == 'arg') {
-      args.push(childNode.getAttribute('name'));
-      paramIds.push(childNode.getAttribute('paramId'));
-    }
+
+Blockly.Blocks['procedures_defreturn'].init = function() {
+  var nameField = new Blockly.FieldTextInput('',
+      Blockly.Procedures.rename);
+  nameField.setSpellcheck(false);
+  this.appendDummyInput()
+      .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_TITLE)
+      .appendField(nameField, 'NAME')
+      .appendField('', 'PARAMS');
+  this.appendValueInput('RETURN')
+      .setAlign(Blockly.ALIGN_RIGHT)
+      .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_RETURN);
+  this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+  if ((this.workspace.options.comments ||
+       (this.workspace.options.parentWorkspace &&
+        this.workspace.options.parentWorkspace.options.comments)) &&
+      Blockly.Msg.PROCEDURES_DEFRETURN_COMMENT) {
+    this.setCommentText(Blockly.Msg.PROCEDURES_DEFRETURN_COMMENT);
   }
-  this.setProcedureParameters_(args, paramIds);
+  this.setColour(Blockly.Blocks.procedures.HUE);
+  this.setTooltip(Blockly.Msg.PROCEDURES_DEFRETURN_TOOLTIP);
+  this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFRETURN_HELPURL);
+  this.arguments_ = [];
+  this.setStatements_(true);
+  this.statementConnection_ = null;
 };
-
-
-Blockly.Blocks['procedures_callreturn'].renameProcedure = Blockly.Blocks['procedures_callnoreturn'].renameProcedure;
-Blockly.Blocks['procedures_callreturn'].domToMutation = Blockly.Blocks['procedures_callnoreturn'].domToMutation;
 
 Blockly.Blocks['text_print_noend'] = {
   /**
