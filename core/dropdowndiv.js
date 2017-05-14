@@ -112,6 +112,9 @@ Blockly.DropDownDiv.onHide_ = 0;
 Blockly.DropDownDiv.isInAnimation = false;
 Blockly.DropDownDiv.isInAnimationTimer = null;
 
+// Is the mousedown listener active?
+Blockly.DropDownDiv.listenerActive = false;
+
 /**
  * Create and insert the DOM element for this div.
  * @param {Element} container Element that the div should be contained in.
@@ -131,7 +134,6 @@ Blockly.DropDownDiv.createDom = function() {
   Blockly.DropDownDiv.DIV_.style.transition = 'transform ' +
     Blockly.DropDownDiv.ANIMATION_TIME + 's, ' +
     'opacity ' + Blockly.DropDownDiv.ANIMATION_TIME + 's';
-  window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
 };
 
 /**
@@ -205,6 +207,22 @@ Blockly.DropDownDiv.showPositionedByBlock = function(owner, block,
   return Blockly.DropDownDiv.show(this, primaryX, primaryY, secondaryX, secondaryY, opt_onHide);
 };
 
+// Remove mousedown listener
+Blockly.DropDownDiv.removeListener = function() {
+  if(Blockly.DropDownDiv.listenerActive) {
+    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
+    Blockly.DropDownDiv.listenerActive = false;
+  }
+};
+
+// Add mousedown listener
+Blockly.DropDownDiv.addListener = function() {
+  if(!Blockly.DropDownDiv.listenerActive) {
+    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
+    Blockly.DropDownDiv.listenerActive = true;
+  }
+};
+
 /**
  * Show and place the drop-down.
  * The drop-down is placed with an absolute "origin point" (x, y) - i.e.,
@@ -233,6 +251,8 @@ Blockly.DropDownDiv.show = function(owner, primaryX, primaryY, secondaryX, secon
     Blockly.DropDownDiv.isInAnimationTimer = null;
   }
   Blockly.DropDownDiv.isInAnimationTimer = window.setTimeout(function () { Blockly.DropDownDiv.isInAnimation = false; }, Blockly.DropDownDiv.ANIMATION_TIME*1000);
+
+  Blockly.DropDownDiv.addListener();
 
   Blockly.DropDownDiv.owner_ = owner;
   Blockly.DropDownDiv.onHide_ = opt_onHide;
@@ -421,6 +441,7 @@ Blockly.DropDownDiv.hideWithoutAnimation = function() {
   div.style.left = '';
   div.style.display = 'none';
   Blockly.DropDownDiv.clearContent();
+  Blockly.DropDownDiv.removeListener();
   Blockly.DropDownDiv.owner_ = null;
   if (Blockly.DropDownDiv.onHide_) {
     Blockly.DropDownDiv.onHide_();

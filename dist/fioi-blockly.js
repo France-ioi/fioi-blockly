@@ -139,6 +139,9 @@ Blockly.DropDownDiv.onHide_ = 0;
 Blockly.DropDownDiv.isInAnimation = false;
 Blockly.DropDownDiv.isInAnimationTimer = null;
 
+// Is the mousedown listener active?
+Blockly.DropDownDiv.listenerActive = false;
+
 /**
  * Create and insert the DOM element for this div.
  * @param {Element} container Element that the div should be contained in.
@@ -158,7 +161,6 @@ Blockly.DropDownDiv.createDom = function() {
   Blockly.DropDownDiv.DIV_.style.transition = 'transform ' +
     Blockly.DropDownDiv.ANIMATION_TIME + 's, ' +
     'opacity ' + Blockly.DropDownDiv.ANIMATION_TIME + 's';
-  window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
 };
 
 /**
@@ -232,6 +234,22 @@ Blockly.DropDownDiv.showPositionedByBlock = function(owner, block,
   return Blockly.DropDownDiv.show(this, primaryX, primaryY, secondaryX, secondaryY, opt_onHide);
 };
 
+// Remove mousedown listener
+Blockly.DropDownDiv.removeListener = function() {
+  if(Blockly.DropDownDiv.listenerActive) {
+    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
+    Blockly.DropDownDiv.listenerActive = false;
+  }
+};
+
+// Add mousedown listener
+Blockly.DropDownDiv.addListener = function() {
+  if(!Blockly.DropDownDiv.listenerActive) {
+    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
+    Blockly.DropDownDiv.listenerActive = true;
+  }
+};
+
 /**
  * Show and place the drop-down.
  * The drop-down is placed with an absolute "origin point" (x, y) - i.e.,
@@ -260,6 +278,8 @@ Blockly.DropDownDiv.show = function(owner, primaryX, primaryY, secondaryX, secon
     Blockly.DropDownDiv.isInAnimationTimer = null;
   }
   Blockly.DropDownDiv.isInAnimationTimer = window.setTimeout(function () { Blockly.DropDownDiv.isInAnimation = false; }, Blockly.DropDownDiv.ANIMATION_TIME*1000);
+
+  Blockly.DropDownDiv.addListener();
 
   Blockly.DropDownDiv.owner_ = owner;
   Blockly.DropDownDiv.onHide_ = opt_onHide;
@@ -448,6 +468,7 @@ Blockly.DropDownDiv.hideWithoutAnimation = function() {
   div.style.left = '';
   div.style.display = 'none';
   Blockly.DropDownDiv.clearContent();
+  Blockly.DropDownDiv.removeListener();
   Blockly.DropDownDiv.owner_ = null;
   if (Blockly.DropDownDiv.onHide_) {
     Blockly.DropDownDiv.onHide_();
@@ -634,6 +655,70 @@ Blockly.onMouseUp_ = function(e) {
 // generation go wrong
 Blockly.genUid.soup_ = '!#()*+,-./:;=?@[]_`{|}~' +
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+// Modify to save somewhere all bound events
+Blockly.eventsBound = [];
+
+Blockly.bindEventWithChecks_ = function(node, name, thisObject, func,
+    opt_noCaptureIdentifier) {
+  var handled = false;
+  var wrapFunc = function(e) {
+    var captureIdentifier = !opt_noCaptureIdentifier;
+    // Handle each touch point separately.  If the event was a mouse event, this
+    // will hand back an array with one element, which we're fine handling.
+    var events = Blockly.Touch.splitEventByTouches(e);
+    for (var i = 0, event; event = events[i]; i++) {
+      if (captureIdentifier && !Blockly.Touch.shouldHandleEvent(event)) {
+        continue;
+      }
+      Blockly.Touch.setClientFromTouch(event);
+      if (thisObject) {
+        func.call(thisObject, event);
+      } else {
+        func(event);
+      }
+      handled = true;
+    }
+  };
+
+  node.addEventListener(name, wrapFunc, false);
+  Blockly.eventsBound.push({node: node, name: name, func: func});
+  var bindData = [[node, name, wrapFunc]];
+
+  // Add equivalent touch event.
+  if (name in Blockly.Touch.TOUCH_MAP) {
+    var touchWrapFunc = function(e) {
+      wrapFunc(e);
+      // Stop the browser from scrolling/zooming the page.
+      if (handled) {
+        e.preventDefault();
+      }
+    };
+    for (var i = 0, eventName;
+         eventName = Blockly.Touch.TOUCH_MAP[name][i]; i++) {
+      node.addEventListener(eventName, touchWrapFunc, false);
+      Blockly.eventsBound.push({node: node, name: eventName, func: func});
+      bindData.push([node, eventName, touchWrapFunc]);
+    }
+  }
+  return bindData;
+};
+
+
+// Function to remove all bound events
+Blockly.removeEvents = function() {
+  if(Blockly.documentEventsBound_) {
+    document.removeEventListener('mouseup', Blockly.onMouseUp_);
+  }
+  for(var i=0; i<Blockly.eventsBound.length; i++) {
+    var eData = Blockly.eventsBound[i];
+    try {
+      eData.node.removeEventListener(eData.name, eData.func);
+    } catch(e) {}
+  }
+  Blockly.eventsBound = [];
+  Blockly.DropDownDiv.removeListener();
+}
 
 // Options for the variables flyout
 Blockly.Variables.flyoutOptions = {
