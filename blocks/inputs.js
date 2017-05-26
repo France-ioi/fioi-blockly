@@ -11,6 +11,9 @@ Blockly.Blocks['input_num'] = {
         .appendField(Blockly.Msg.INPUT_NUM);
     this.setOutput(true, 'Number');
     this.setTooltip(Blockly.Msg.INPUT_NUM_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
   }
 };
 
@@ -22,6 +25,9 @@ Blockly.Blocks['input_char'] = {
         .appendField(Blockly.Msg.INPUT_CHAR);
     this.setOutput(true, 'String');
     this.setTooltip(Blockly.Msg.INPUT_CHAR_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
   }
 };
 
@@ -33,6 +39,9 @@ Blockly.Blocks['input_word'] = {
         .appendField(Blockly.Msg.INPUT_WORD);
     this.setOutput(true, 'String');
     this.setTooltip(Blockly.Msg.INPUT_WORD_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
   }
 };
 
@@ -44,5 +53,8 @@ Blockly.Blocks['input_line'] = {
         .appendField(Blockly.Msg.INPUT_LINE);
     this.setOutput(true, 'String');
     this.setTooltip(Blockly.Msg.INPUT_LINE_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
   }
 };

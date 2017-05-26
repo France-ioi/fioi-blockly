@@ -14,7 +14,9 @@ Blockly.Blocks['text_print_noend'] = {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": Blockly.Blocks.texts.HUE,
+      "colour": Blockly.Colours ? Blockly.Colours.texts.primary : Blockly.Blocks.texts.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.texts.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.texts.tertiary : null,
       "tooltip": Blockly.Msg.TEXT_PRINT_NOEND_TOOLTIP,
       "helpUrl": Blockly.Msg.TEXT_PRINT_HELPURL
     });
