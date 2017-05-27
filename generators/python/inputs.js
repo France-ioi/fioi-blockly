@@ -1,5 +1,6 @@
 Blockly.Python['input_num'] = function(block) {
-  Blockly.Python.definitions_['import_sys'] = 'import sys';
+  // TODO :: make a more optimized version of this
+/*  Blockly.Python.definitions_['import_sys'] = 'import sys';
   Blockly.Python.definitions_['from_string_import_whitespace'] = 'from string import whitespace';
   Blockly.Python.definitions_['input_word'] = "def input_word():\n"
                                             + "    buffer = ''\n"
@@ -11,7 +12,8 @@ Blockly.Python['input_num'] = function(block) {
                                             + "        else:\n"
                                             + "            buffer += newchar\n"
                                             + "    return buffer\n";
-  var code = 'int(input_word())';
+  var code = 'int(input_word())';*/
+  var code = 'int(input())';
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
