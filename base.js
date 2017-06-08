@@ -4,10 +4,13 @@ FioiBlockly.OriginalBlocks = {};
 
 FioiBlockly.defaultLang = 'fr';
 
+FioiBlockly.langErrorDisplayed = {};
+
 // Import messages for a language
 FioiBlockly.loadLanguage = function(lang) {
-  if(!FioiBlockly.Msg[lang]) {
-    console.error("Language '+lang+' doesn't exist in fioi-blockly!");
+  if(!FioiBlockly.Msg[lang] && !FioiBlockly.langErrorDisplayed[lang]) {
+    console.error("Language "+lang+" doesn't exist in fioi-blockly!");
+    FioiBlockly.langErrorDisplayed[lang] = true; // Avoid spamming console
     return;
   }
 

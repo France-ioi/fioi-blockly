@@ -46,3 +46,5 @@ FioiBlockly.Msg.fr.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer l
 FioiBlockly.Msg.fr.DATA_REPLACEITEMOFLIST_TITLE = "remplacer l'élément %1 de la liste %2 par %3";
 FioiBlockly.Msg.fr.DATA_ITEMOFLIST_TITLE = "élément %1 dans %2";
 FioiBlockly.Msg.fr.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
+
+FioiBlockly.Msg.fr.INVALID_NAME = "Nom invalide, veuillez n'utiliser que des lettres, lettres accentuées françaises, chiffres (sauf comme premier caractère) et tiret bas '_'.";

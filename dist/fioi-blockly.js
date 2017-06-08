@@ -4,10 +4,13 @@ FioiBlockly.OriginalBlocks = {};
 
 FioiBlockly.defaultLang = 'fr';
 
+FioiBlockly.langErrorDisplayed = {};
+
 // Import messages for a language
 FioiBlockly.loadLanguage = function(lang) {
-  if(!FioiBlockly.Msg[lang]) {
-    console.error("Language '+lang+' doesn't exist in fioi-blockly!");
+  if(!FioiBlockly.Msg[lang] && !FioiBlockly.langErrorDisplayed[lang]) {
+    console.error("Language "+lang+" doesn't exist in fioi-blockly!");
+    FioiBlockly.langErrorDisplayed[lang] = true; // Avoid spamming console
     return;
   }
 
@@ -498,6 +501,29 @@ Blockly.FieldVariable.prototype.classValidator = function(text) {
   return undefined;
 };
 
+// Allow some special characters
+Blockly.Names.prototype.safeName_ = function(name) {
+  if (!name) {
+    return 'unnamed';
+  } else {
+    var newname = '';
+    for(var i=0; i<name.length; i++) {
+      if(i == 0 && '0123456789'.indexOf(name[i]) != -1) {
+      // Most languages don't allow names with leading numbers.
+        newname = 'my_';
+      }
+      if(name[i] == ' ')  {
+        newname += '_';
+      } else if('àâçéèêëïîôùü'.indexOf(name[i]) != -1) {
+        newname += name[i];
+      } else {
+        newname += encodeURI(name[i]).replace(/[^\w]/g, '_');
+      }
+    }
+    return newname;
+  }
+};
+
 // Options for the variables flyout
 Blockly.Procedures.flyoutOptions = {
   includedBlocks: {noret: true, ret: true, ifret: true}, // Blocks to add to the list
@@ -930,12 +956,16 @@ Blockly.Variables.createVariable = function(workspace) {
  * @return {?string} The new variable name, or null if the user picked
  *     something illegal.
  */
-Blockly.Variables.promptName = function(promptText, defaultText, callback) {
+Blockly.Variables.promptName = function(promptText, defaultText, callback, wasInvalid) {
   var cb = function (newVar) {
     // Merge runs of whitespace.  Strip leading and trailing whitespace.
-    // Beyond this, all names are legal.
     if (newVar) {
       newVar = newVar.replace(/[\s\xa0]+/g, ' ').replace(/^ | $/g, '');
+      // Check name is legal
+      if (Blockly.Names.prototype.safeName_(newVar) != newVar) {
+        Blockly.Variables.promptName(promptText, newVar, callback, true);
+        return;
+      }
       if (newVar == Blockly.Msg.RENAME_VARIABLE ||
           newVar == Blockly.Msg.NEW_VARIABLE) {
         // Ok, not ALL names are legal...
@@ -944,10 +974,16 @@ Blockly.Variables.promptName = function(promptText, defaultText, callback) {
     };
     callback(newVar);
   };
-  if(defaultText) {
-    displayHelper.showPopupMessage(promptText, 'input', null, cb, Blockly.Msg.UNDO, null, defaultText);
+
+  if(wasInvalid) {
+    var fullPromptText = '<i>' + Blockly.Msg.INVALID_NAME + '</i><br />' + promptText;
   } else {
-    displayHelper.showPopupMessage(promptText, 'input', null, cb);
+    var fullPromptText = promptText;
+  }
+  if(defaultText) {
+    displayHelper.showPopupMessage(fullPromptText, 'input', null, cb, Blockly.Msg.UNDO, null, defaultText);
+  } else {
+    displayHelper.showPopupMessage(fullPromptText, 'input', null, cb);
   }
 };
 
@@ -1032,6 +1068,8 @@ FioiBlockly.Msg.fr.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer l
 FioiBlockly.Msg.fr.DATA_REPLACEITEMOFLIST_TITLE = "remplacer l'élément %1 de la liste %2 par %3";
 FioiBlockly.Msg.fr.DATA_ITEMOFLIST_TITLE = "élément %1 dans %2";
 FioiBlockly.Msg.fr.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
+
+FioiBlockly.Msg.fr.INVALID_NAME = "Nom invalide, veuillez n'utiliser que des lettres, lettres accentuées françaises, et chiffres (sauf comme premier caractère).";
 
 // Fill undefined Blockly.Msg messages with messages from the default language
 FioiBlockly.fillLanguage = function() {

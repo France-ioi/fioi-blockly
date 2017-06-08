@@ -208,12 +208,16 @@ Blockly.Variables.createVariable = function(workspace) {
  * @return {?string} The new variable name, or null if the user picked
  *     something illegal.
  */
-Blockly.Variables.promptName = function(promptText, defaultText, callback) {
+Blockly.Variables.promptName = function(promptText, defaultText, callback, wasInvalid) {
   var cb = function (newVar) {
     // Merge runs of whitespace.  Strip leading and trailing whitespace.
-    // Beyond this, all names are legal.
     if (newVar) {
       newVar = newVar.replace(/[\s\xa0]+/g, ' ').replace(/^ | $/g, '');
+      // Check name is legal
+      if (Blockly.Names.prototype.safeName_(newVar) != newVar) {
+        Blockly.Variables.promptName(promptText, newVar, callback, true);
+        return;
+      }
       if (newVar == Blockly.Msg.RENAME_VARIABLE ||
           newVar == Blockly.Msg.NEW_VARIABLE) {
         // Ok, not ALL names are legal...
@@ -222,9 +226,15 @@ Blockly.Variables.promptName = function(promptText, defaultText, callback) {
     };
     callback(newVar);
   };
-  if(defaultText) {
-    displayHelper.showPopupMessage(promptText, 'input', null, cb, Blockly.Msg.UNDO, null, defaultText);
+
+  if(wasInvalid) {
+    var fullPromptText = '<i>' + Blockly.Msg.INVALID_NAME + '</i><br />' + promptText;
   } else {
-    displayHelper.showPopupMessage(promptText, 'input', null, cb);
+    var fullPromptText = promptText;
+  }
+  if(defaultText) {
+    displayHelper.showPopupMessage(fullPromptText, 'input', null, cb, Blockly.Msg.UNDO, null, defaultText);
+  } else {
+    displayHelper.showPopupMessage(fullPromptText, 'input', null, cb);
   }
 };
