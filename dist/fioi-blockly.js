@@ -1069,7 +1069,7 @@ FioiBlockly.Msg.fr.DATA_REPLACEITEMOFLIST_TITLE = "remplacer l'élément %1 de l
 FioiBlockly.Msg.fr.DATA_ITEMOFLIST_TITLE = "élément %1 dans %2";
 FioiBlockly.Msg.fr.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
 
-FioiBlockly.Msg.fr.INVALID_NAME = "Nom invalide, veuillez n'utiliser que des lettres, lettres accentuées françaises, et chiffres (sauf comme premier caractère).";
+FioiBlockly.Msg.fr.INVALID_NAME = "Nom invalide, veuillez n'utiliser que des lettres, lettres accentuées françaises, chiffres (sauf comme premier caractère) et tiret bas '_'.";
 
 // Fill undefined Blockly.Msg messages with messages from the default language
 FioiBlockly.fillLanguage = function() {
