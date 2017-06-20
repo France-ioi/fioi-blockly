@@ -17,6 +17,20 @@ Blockly.Blocks['input_num'] = {
   }
 };
 
+Blockly.Blocks['input_num_next'] = {
+  // Read a number.
+  init: function() {
+    this.setColour(Blockly.Blocks.inputs.HUE);
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.INPUT_NUM_NEXT);
+    this.setOutput(true, 'Number');
+    this.setTooltip(Blockly.Msg.INPUT_NUM_NEXT_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
+  }
+};
+
 Blockly.Blocks['input_char'] = {
   // Read a character.
   init: function() {
@@ -58,3 +72,18 @@ Blockly.Blocks['input_line'] = {
     }
   }
 };
+
+Blockly.Blocks['input_num_list'] = {
+  // Read a number.
+  init: function() {
+    this.setColour(Blockly.Blocks.inputs.HUE);
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.INPUT_NUM_LIST);
+    this.setOutput(true, 'Array');
+    this.setTooltip(Blockly.Msg.INPUT_NUM_LIST_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
+  }
+};
+

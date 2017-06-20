@@ -1054,14 +1054,18 @@ FioiBlockly.Msg.fr.LISTS_GET_INDEX_RANDOM = "à un indice aléatoire";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_REMOVE = "supprimer la valeur";
 FioiBlockly.Msg.fr.LISTS_SET_INDEX_INSERT = "insérer";
 
-FioiBlockly.Msg.fr.INPUT_NUM = "lire un nombre";
-FioiBlockly.Msg.fr.INPUT_NUM_TOOLTIP = "Lit un nombre sur l'entrée du programme.";
+FioiBlockly.Msg.fr.INPUT_NUM = "lire un nombre sur une ligne";
+FioiBlockly.Msg.fr.INPUT_NUM_TOOLTIP = "Lit un nombre seul sur une ligne, sur l'entrée du programme.";
+FioiBlockly.Msg.fr.INPUT_NUM_NEXT = "lire le prochain nombre";
+FioiBlockly.Msg.fr.INPUT_NUM_NEXT_TOOLTIP = "Lit le prochain nombre sur l'entrée du programme.";
 FioiBlockly.Msg.fr.INPUT_CHAR = "lire un caractère";
 FioiBlockly.Msg.fr.INPUT_CHAR_TOOLTIP = "Lit un caractère sur l'entrée du programme.";
 FioiBlockly.Msg.fr.INPUT_WORD = "lire un mot";
 FioiBlockly.Msg.fr.INPUT_WORD_TOOLTIP = "Lit un mot sur l'entrée du programme.";
 FioiBlockly.Msg.fr.INPUT_LINE = "lire une ligne";
 FioiBlockly.Msg.fr.INPUT_LINE_TOOLTIP = "Lit une ligne sur l'entrée du programme.";
+FioiBlockly.Msg.fr.INPUT_NUM_LIST = "lire une liste de nombres";
+FioiBlockly.Msg.fr.INPUT_NUM_LIST_TOOLTIP = "Lit une liste de nombres sur une ligne, sur l'entrée du programme.";
 
 FioiBlockly.Msg.fr.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer la variable '%1', utilisée par la procédure '%2'.";
 
@@ -1321,6 +1325,20 @@ Blockly.Blocks['input_num'] = {
   }
 };
 
+Blockly.Blocks['input_num_next'] = {
+  // Read a number.
+  init: function() {
+    this.setColour(Blockly.Blocks.inputs.HUE);
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.INPUT_NUM_NEXT);
+    this.setOutput(true, 'Number');
+    this.setTooltip(Blockly.Msg.INPUT_NUM_NEXT_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
+  }
+};
+
 Blockly.Blocks['input_char'] = {
   // Read a character.
   init: function() {
@@ -1362,6 +1380,21 @@ Blockly.Blocks['input_line'] = {
     }
   }
 };
+
+Blockly.Blocks['input_num_list'] = {
+  // Read a number.
+  init: function() {
+    this.setColour(Blockly.Blocks.inputs.HUE);
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.INPUT_NUM_LIST);
+    this.setOutput(true, 'Array');
+    this.setTooltip(Blockly.Msg.INPUT_NUM_LIST_TOOLTIP);
+    if(this.setOutputShape) {
+      this.setOutputShape(Blockly.OUTPUT_SHAPE_HEXAGONAL);
+    }
+  }
+};
+
 
 if(typeof Blockly.Blocks.lists === 'undefined') {
   Blockly.Blocks.lists = {};
@@ -1894,6 +1927,19 @@ Blockly.JavaScript['input_num'] = function(block) {
                                                  + "        stdinBuffer = '';\n"
                                                  + "    return stdinBuffer;\n"
                                                  + "};";
+  var code = 'parseInt(readStdin())';
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+Blockly.JavaScript['input_num_next'] = function(block) {
+  Blockly.JavaScript.definitions_['input_funcs'] = "var stdinBuffer = '';\n"
+                                                 + "function readStdin() {\n"
+                                                 + "    if (stdinBuffer == '')\n"
+                                                 + "        stdinBuffer = readline();\n"
+                                                 + "    if (typeof stdinBuffer === 'undefined')\n"
+                                                 + "        stdinBuffer = '';\n"
+                                                 + "    return stdinBuffer;\n"
+                                                 + "};";
   Blockly.JavaScript.definitions_['input_word'] = "function input_word() {\n"
                                                 + "    while (stdinBuffer.trim() == '')\n"
                                                 + "        stdinBuffer = readline();\n"
@@ -1959,6 +2005,26 @@ Blockly.JavaScript['input_line'] = function(block) {
                                                  + "    return stdinBuffer;\n"
                                                  + "};";
   var code = 'readStdin()';
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+Blockly.JavaScript['input_num_list'] = function(block) {
+  Blockly.JavaScript.definitions_['input_funcs'] = "var stdinBuffer = '';\n"
+                                                 + "function readStdin() {\n"
+                                                 + "    if (stdinBuffer == '')\n"
+                                                 + "        stdinBuffer = readline();\n"
+                                                 + "    if (typeof stdinBuffer === 'undefined')\n"
+                                                 + "        stdinBuffer = '';\n"
+                                                 + "    return stdinBuffer;\n"
+                                                 + "};";
+  Blockly.JavaScript.definitions_['input_num_list'] = "function input_num_list() {\n"
+                                                    + "    var parts = readStdin().split(/\s+/);\n"
+                                                    + "    for(var i=0; i<parts.length; i++) {\n"
+                                                    + "        parts[i] = parseInt(parts[i]);\n"
+                                                    + "    }\n"
+                                                    + "    return parts;\n"
+                                                    + "};";
+  var code = 'input_num_list()';
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
@@ -2076,8 +2142,13 @@ Blockly.Python['dict_keys'] = function(block) {
 
 
 Blockly.Python['input_num'] = function(block) {
+  var code = 'int(input())';
+  return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Python['input_num_next'] = function(block) {
   // TODO :: make a more optimized version of this
-/*  Blockly.Python.definitions_['import_sys'] = 'import sys';
+  Blockly.Python.definitions_['import_sys'] = 'import sys';
   Blockly.Python.definitions_['from_string_import_whitespace'] = 'from string import whitespace';
   Blockly.Python.definitions_['input_word'] = "def input_word():\n"
                                             + "    buffer = ''\n"
@@ -2089,8 +2160,7 @@ Blockly.Python['input_num'] = function(block) {
                                             + "        else:\n"
                                             + "            buffer += newchar\n"
                                             + "    return buffer\n";
-  var code = 'int(input_word())';*/
-  var code = 'int(input())';
+  var code = 'int(input_word())';
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -2122,6 +2192,12 @@ Blockly.Python['input_line'] = function(block) {
   var code = 'sys.stdin.readline()[:-1]';
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
+
+Blockly.Python['input_num_list'] = function(block) {
+  var code = 'list(map(int, input().split()))';
+  return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
 
 Blockly.Python['lists_append'] = function(block) {
   // Append
