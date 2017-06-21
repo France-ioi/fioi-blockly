@@ -32,9 +32,11 @@ FioiBlockly.Msg.fr.LISTS_GET_INDEX_RANDOM = "à un indice aléatoire";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_REMOVE = "supprimer la valeur";
 FioiBlockly.Msg.fr.LISTS_SET_INDEX_INSERT = "insérer";
 
-FioiBlockly.Msg.fr.INPUT_NUM = "lire un nombre sur une ligne";
+FioiBlockly.Msg.fr.INPUT_NUM = "lire un nombre seul sur une ligne";
 FioiBlockly.Msg.fr.INPUT_NUM_TOOLTIP = "Lit un nombre seul sur une ligne, sur l'entrée du programme.";
-FioiBlockly.Msg.fr.INPUT_NUM_NEXT = "lire le prochain nombre";
+FioiBlockly.Msg.fr.INPUT_NUM_LIST = "lire une liste de nombres sur une ligne";
+FioiBlockly.Msg.fr.INPUT_NUM_LIST_TOOLTIP = "Lit une liste de nombres sur une ligne, sur l'entrée du programme.";
+FioiBlockly.Msg.fr.INPUT_NUM_NEXT = "lire un nombre";
 FioiBlockly.Msg.fr.INPUT_NUM_NEXT_TOOLTIP = "Lit le prochain nombre sur l'entrée du programme.";
 FioiBlockly.Msg.fr.INPUT_CHAR = "lire un caractère";
 FioiBlockly.Msg.fr.INPUT_CHAR_TOOLTIP = "Lit un caractère sur l'entrée du programme.";
@@ -42,8 +44,6 @@ FioiBlockly.Msg.fr.INPUT_WORD = "lire un mot";
 FioiBlockly.Msg.fr.INPUT_WORD_TOOLTIP = "Lit un mot sur l'entrée du programme.";
 FioiBlockly.Msg.fr.INPUT_LINE = "lire une ligne";
 FioiBlockly.Msg.fr.INPUT_LINE_TOOLTIP = "Lit une ligne sur l'entrée du programme.";
-FioiBlockly.Msg.fr.INPUT_NUM_LIST = "lire une liste de nombres";
-FioiBlockly.Msg.fr.INPUT_NUM_LIST_TOOLTIP = "Lit une liste de nombres sur une ligne, sur l'entrée du programme.";
 
 FioiBlockly.Msg.fr.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer la variable '%1', utilisée par la procédure '%2'.";
 
