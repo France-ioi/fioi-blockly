@@ -17,6 +17,17 @@ Blockly.Python['dict_get_literal'] = function(block) {
 };
 
 
+Blockly.Python['dict_set_literal'] = function(block) {
+  var dict = Blockly.Python.valueToCode(block, 'DICT',
+      Blockly.Python.ORDER_MEMBER) || '___';
+  var key = Blockly.Python.quote_(block.getFieldValue('ITEM'));
+  var value = Blockly.Python.valueToCode(block, 'VAL',
+      Blockly.Python.ORDER_NONE) || '___';
+  var code = dict + '[' + key + '] = ' + value + '\n';
+  return code;
+};
+
+
 Blockly.Python['dicts_create_with'] = function(block) {
     var value_keys = Blockly.Python.valueToCode(block, 'keys', Blockly.   Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.

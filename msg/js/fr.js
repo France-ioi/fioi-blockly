@@ -15,6 +15,10 @@ FioiBlockly.Msg.fr.DICTS_CREATE_WITH_TOOLTIP = "";
 FioiBlockly.Msg.fr.DICT_GET = "récupérer la clé";
 FioiBlockly.Msg.fr.DICT_GET_TO = "de";
 FioiBlockly.Msg.fr.DICT_KEYS = "liste des clés de";
+FioiBlockly.Msg.fr.DICT_SET_TITLE = "affecter la clé";
+FioiBlockly.Msg.fr.DICT_SET_OF = "du dictionnaire";
+FioiBlockly.Msg.fr.DICT_SET_TO = "à";
+
 FioiBlockly.Msg.fr.TEXT_PRINT_TITLE = "afficher la ligne %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, avec retour à la ligne après.";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TITLE = "afficher %1";
@@ -31,6 +35,9 @@ FioiBlockly.Msg.fr.LISTS_GET_INDEX_LAST = "à la fin";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_RANDOM = "à un indice aléatoire";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_REMOVE = "supprimer la valeur";
 FioiBlockly.Msg.fr.LISTS_SET_INDEX_INSERT = "insérer";
+FioiBlockly.Msg.fr.LISTS_SORT_TITLE = "renvoyer le tri %1 %2 de la liste %3"
+FioiBlockly.Msg.fr.LISTS_SORT_PLACE_MSG = "trier la liste %1 sur place";
+FioiBlockly.Msg.fr.LISTS_SORT_PLACE_TOOLTIP = "Trie la liste '%1' et la modifie directement.";
 
 FioiBlockly.Msg.fr.INPUT_NUM = "lire un nombre seul sur une ligne";
 FioiBlockly.Msg.fr.INPUT_NUM_TOOLTIP = "Lit un nombre seul sur une ligne, sur l'entrée du programme.";

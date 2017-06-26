@@ -1037,6 +1037,10 @@ FioiBlockly.Msg.fr.DICTS_CREATE_WITH_TOOLTIP = "";
 FioiBlockly.Msg.fr.DICT_GET = "récupérer la clé";
 FioiBlockly.Msg.fr.DICT_GET_TO = "de";
 FioiBlockly.Msg.fr.DICT_KEYS = "liste des clés de";
+FioiBlockly.Msg.fr.DICT_SET_TITLE = "affecter la clé";
+FioiBlockly.Msg.fr.DICT_SET_OF = "du dictionnaire";
+FioiBlockly.Msg.fr.DICT_SET_TO = "à";
+
 FioiBlockly.Msg.fr.TEXT_PRINT_TITLE = "afficher la ligne %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, avec retour à la ligne après.";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TITLE = "afficher %1";
@@ -1053,6 +1057,9 @@ FioiBlockly.Msg.fr.LISTS_GET_INDEX_LAST = "à la fin";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_RANDOM = "à un indice aléatoire";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_REMOVE = "supprimer la valeur";
 FioiBlockly.Msg.fr.LISTS_SET_INDEX_INSERT = "insérer";
+FioiBlockly.Msg.fr.LISTS_SORT_TITLE = "renvoyer le tri %1 %2 de la liste %3"
+FioiBlockly.Msg.fr.LISTS_SORT_PLACE_MSG = "trier la liste %1 sur place";
+FioiBlockly.Msg.fr.LISTS_SORT_PLACE_TOOLTIP = "Trie la liste '%1' et la modifie directement.";
 
 FioiBlockly.Msg.fr.INPUT_NUM = "lire un nombre seul sur une ligne";
 FioiBlockly.Msg.fr.INPUT_NUM_TOOLTIP = "Lit un nombre seul sur une ligne, sur l'entrée du programme.";
@@ -1091,7 +1098,6 @@ Blockly.Blocks.dicts.HUE = 0;
 
 
 Blockly.Blocks['dict_get'] = {
-  // Set element at index.
   init: function() {
     this.setColour(Blockly.Blocks.dicts.HUE);
     this.appendValueInput('ITEM');
@@ -1106,7 +1112,6 @@ Blockly.Blocks['dict_get'] = {
 };
 
 Blockly.Blocks['dict_get_literal'] = {
-  // Set element at index.
   init: function() {
     this.setColour(Blockly.Blocks.dicts.HUE);   
     this.appendValueInput('DICT')
@@ -1139,8 +1144,28 @@ Blockly.Blocks['dict_get_literal'] = {
   }
 };
 
+Blockly.Blocks['dict_set_literal'] = {
+  init: function() {
+    this.setColour(Blockly.Blocks.dicts.HUE);   
+    this.appendValueInput('DICT')
+        .appendField(Blockly.Msg.DICT_SET_TITLE)
+        .appendField(this.newQuote_(true))
+        .appendField(new Blockly.FieldTextInput(
+                     Blockly.Msg.DICTS_CREATE_WITH_ITEM_KEY),
+                     'ITEM')
+        .appendField(this.newQuote_(false))
+        .setCheck('dict')
+        .appendField(Blockly.Msg.DICT_SET_OF);
+    this.appendValueInput('VAL')
+        .appendField(Blockly.Msg.DICT_SET_TO);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+  }
+};
+Blockly.Blocks['dict_set_literal'].newQuote_ = Blockly.Blocks['dict_get_literal'].newQuote_;
+
 Blockly.Blocks['dict_keys'] = {
-  // Set element at index.
   init: function() {
     this.setColour(Blockly.Blocks.dicts.HUE);
     this.appendValueInput('DICT')
@@ -1571,6 +1596,35 @@ Blockly.Blocks['lists_setIndex'] = {
   }
 };
 
+Blockly.Blocks['lists_sort_place'] = {
+  /**
+   * Block for appending to a list in place.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.LISTS_SORT_PLACE_MSG,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": "liste"
+        }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": Blockly.Blocks.lists.HUE,
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.LISTS_SORT_PLACE_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
+
 FioiBlockly.OriginalBlocks['logic_compare'] = Blockly.Blocks['logic_compare'];
 
 // Use standard operator names (for instance '!=' instead of '≠')
@@ -1895,6 +1949,17 @@ Blockly.JavaScript['dict_get_literal'] = function(block) {
 };
 
 
+Blockly.JavaScript['dict_set_literal'] = function(block) {
+  var dict = Blockly.JavaScript.valueToCode(block, 'DICT',
+      Blockly.JavaScript.ORDER_MEMBER) || '___';
+  var key = block.getFieldValue('ITEM');
+  var value = Blockly.Python.valueToCode(block, 'VAL',
+      Blockly.Python.ORDER_NONE) || '___';
+  var code = dict + '.' + key + ' = ' + value + ';\n';
+  return code;
+};
+
+
 Blockly.JavaScript['dicts_create_with'] = function(block) {
     var value_keys = Blockly.JavaScript.valueToCode(block, 'keys', Blockly.   JavaScript.ORDER_ATOMIC);
     // TODO: Assemble JavaScript into code variable.
@@ -2037,6 +2102,26 @@ Blockly.JavaScript['lists_append'] = function(block) {
   return varName + '.push(' + value + ');\n';
 };
 
+Blockly.JavaScript['lists_sort_place'] = function(block) {
+  // Javascript default sort is lexicographic, which doesn't work for numbers.
+  // By using the normal compare operator, we circumvent this issue; moreover,
+  // it returns false for uncomparable values, which will in this case not
+  // modify the place of these values in the list.
+  Blockly.JavaScript.definitions_['list_sort_auto'] = ""
+    + "function list_sort_auto(a, b) {\n"
+    + "    if(a === b) {\n"
+    + "        return 0;\n"
+    + "    } else if(a > b) {\n"
+    + "        return 1;\n"
+    + "    } else {\n"
+    + "        return -1;\n"
+    + "    }\n"
+    + "};\n"
+  var varName = Blockly.JavaScript.variableDB_.getName(block.getFieldValue('VAR'),
+      Blockly.Variables.NAME_TYPE);
+  return varName + '.sort(list_sort_auto);\n';
+};
+
 Blockly.JavaScript['controls_repeat_ext'] = function(block) {
   // Repeat n times.
   if (block.getField('TIMES')) {
@@ -2115,6 +2200,17 @@ Blockly.Python['dict_get_literal'] = function(block) {
   var value = Blockly.Python.quote_(block.getFieldValue('ITEM'));
   var code = dict + '[' + value + ']';
   return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
+
+Blockly.Python['dict_set_literal'] = function(block) {
+  var dict = Blockly.Python.valueToCode(block, 'DICT',
+      Blockly.Python.ORDER_MEMBER) || '___';
+  var key = Blockly.Python.quote_(block.getFieldValue('ITEM'));
+  var value = Blockly.Python.valueToCode(block, 'VAL',
+      Blockly.Python.ORDER_NONE) || '___';
+  var code = dict + '[' + key + '] = ' + value + '\n';
+  return code;
 };
 
 
@@ -2207,6 +2303,13 @@ Blockly.Python['lists_append'] = function(block) {
       Blockly.Python.ORDER_NONE) || '___';
   return varName + '.append(' + value + ')\n';
 };
+
+Blockly.Python['lists_sort_place'] = function(block) {
+  var varName = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'),
+      Blockly.Variables.NAME_TYPE);
+  return varName + '.sort()\n';
+};
+
 
 Blockly.Python['controls_repeat_ext'] = function(block) {
   // Repeat n times.

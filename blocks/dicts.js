@@ -4,7 +4,6 @@ Blockly.Blocks.dicts.HUE = 0;
 
 
 Blockly.Blocks['dict_get'] = {
-  // Set element at index.
   init: function() {
     this.setColour(Blockly.Blocks.dicts.HUE);
     this.appendValueInput('ITEM');
@@ -19,7 +18,6 @@ Blockly.Blocks['dict_get'] = {
 };
 
 Blockly.Blocks['dict_get_literal'] = {
-  // Set element at index.
   init: function() {
     this.setColour(Blockly.Blocks.dicts.HUE);   
     this.appendValueInput('DICT')
@@ -52,8 +50,28 @@ Blockly.Blocks['dict_get_literal'] = {
   }
 };
 
+Blockly.Blocks['dict_set_literal'] = {
+  init: function() {
+    this.setColour(Blockly.Blocks.dicts.HUE);   
+    this.appendValueInput('DICT')
+        .appendField(Blockly.Msg.DICT_SET_TITLE)
+        .appendField(this.newQuote_(true))
+        .appendField(new Blockly.FieldTextInput(
+                     Blockly.Msg.DICTS_CREATE_WITH_ITEM_KEY),
+                     'ITEM')
+        .appendField(this.newQuote_(false))
+        .setCheck('dict')
+        .appendField(Blockly.Msg.DICT_SET_OF);
+    this.appendValueInput('VAL')
+        .appendField(Blockly.Msg.DICT_SET_TO);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+  }
+};
+Blockly.Blocks['dict_set_literal'].newQuote_ = Blockly.Blocks['dict_get_literal'].newQuote_;
+
 Blockly.Blocks['dict_keys'] = {
-  // Set element at index.
   init: function() {
     this.setColour(Blockly.Blocks.dicts.HUE);
     this.appendValueInput('DICT')

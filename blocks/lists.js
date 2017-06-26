@@ -172,3 +172,32 @@ Blockly.Blocks['lists_setIndex'] = {
     this.getInput('AT').appendField(menu, 'WHERE'); 
   }
 };
+
+Blockly.Blocks['lists_sort_place'] = {
+  /**
+   * Block for appending to a list in place.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.LISTS_SORT_PLACE_MSG,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": "liste"
+        }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": Blockly.Blocks.lists.HUE,
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.LISTS_SORT_PLACE_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
