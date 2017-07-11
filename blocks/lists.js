@@ -26,7 +26,9 @@ Blockly.Blocks['lists_append'] = {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": Blockly.Blocks.lists.HUE,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.lists.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
     });
     // Assign 'this' to a variable for use in the tooltip closure below.
     var thisBlock = this;
@@ -190,7 +192,9 @@ Blockly.Blocks['lists_sort_place'] = {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": Blockly.Blocks.lists.HUE,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.lists.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
     });
     // Assign 'this' to a variable for use in the tooltip closure below.
     var thisBlock = this;
