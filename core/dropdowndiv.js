@@ -210,7 +210,7 @@ Blockly.DropDownDiv.showPositionedByBlock = function(owner, block,
 // Remove mousedown listener
 Blockly.DropDownDiv.removeListener = function() {
   if(Blockly.DropDownDiv.listenerActive) {
-    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
+    Blockly.unbindEvent_(Blockly.DropDownDiv.listenerActive);
     Blockly.DropDownDiv.listenerActive = false;
   }
 };
@@ -218,8 +218,7 @@ Blockly.DropDownDiv.removeListener = function() {
 // Add mousedown listener
 Blockly.DropDownDiv.addListener = function() {
   if(!Blockly.DropDownDiv.listenerActive) {
-    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
-    Blockly.DropDownDiv.listenerActive = true;
+    Blockly.DropDownDiv.listenerActive = Blockly.bindEventWithChecks_(window, 'mousedown', Blockly.DropDownDiv, Blockly.DropDownDiv.hideIfNotShowing);
   }
 };
 

@@ -240,7 +240,7 @@ Blockly.DropDownDiv.showPositionedByBlock = function(owner, block,
 // Remove mousedown listener
 Blockly.DropDownDiv.removeListener = function() {
   if(Blockly.DropDownDiv.listenerActive) {
-    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
+    Blockly.unbindEvent_(Blockly.DropDownDiv.listenerActive);
     Blockly.DropDownDiv.listenerActive = false;
   }
 };
@@ -248,8 +248,7 @@ Blockly.DropDownDiv.removeListener = function() {
 // Add mousedown listener
 Blockly.DropDownDiv.addListener = function() {
   if(!Blockly.DropDownDiv.listenerActive) {
-    window.addEventListener('mousedown', Blockly.DropDownDiv.hideIfNotShowing, true);
-    Blockly.DropDownDiv.listenerActive = true;
+    Blockly.DropDownDiv.listenerActive = Blockly.bindEventWithChecks_(window, 'mousedown', Blockly.DropDownDiv, Blockly.DropDownDiv.hideIfNotShowing);
   }
 };
 
@@ -733,17 +732,17 @@ Blockly.bindEventWithChecks_ = function(node, name, thisObject, func,
 
 // Function to remove all bound events
 Blockly.removeEvents = function() {
-  if(Blockly.documentEventsBound_) {
-    document.removeEventListener('mouseup', Blockly.onMouseUp_);
-  }
   for(var i=0; i<Blockly.eventsBound.length; i++) {
     var eData = Blockly.eventsBound[i];
     try {
       eData.node.removeEventListener(eData.name, eData.func);
     } catch(e) {}
   }
+  if(Blockly.documentEventsBound_) {
+    document.removeEventListener('mouseup', Blockly.onMouseUp_);
+    Blockly.documentEventsBound_ = false;
+  }
   Blockly.eventsBound = [];
-  Blockly.DropDownDiv.removeListener();
 }
 
 // Options for the variables flyout
