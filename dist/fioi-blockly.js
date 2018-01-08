@@ -682,7 +682,9 @@ Blockly.genUid.soup_ = '!#()*+,-./:;=?@[]_`{|}~' +
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 // Modify to save somewhere all bound events
-Blockly.eventsBound = [];
+if(!Blockly.eventsBound) {
+  Blockly.eventsBound = [];
+}
 
 Blockly.bindEventWithChecks_ = function(node, name, thisObject, func,
     opt_noCaptureIdentifier) {
