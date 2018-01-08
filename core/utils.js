@@ -29,7 +29,7 @@ Blockly.bindEventWithChecks_ = function(node, name, thisObject, func,
   };
 
   node.addEventListener(name, wrapFunc, false);
-  Blockly.eventsBound.push({node: node, name: name, func: func});
+  Blockly.eventsBound.push({node: node, name: name, func: wrapFunc});
   var bindData = [[node, name, wrapFunc]];
 
   // Add equivalent touch event.
