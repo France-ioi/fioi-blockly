@@ -32,6 +32,8 @@ Blockly.Python['lists_setIndex'] = function(block) {
   if(mode == 'SET') {
     Blockly.Python.definitions_['lists_assignIndex'] = '' +
       'def assignIndex(l, i, x):\n' +
+      '    if i > 1000000:\n' +
+      '        raise IndexError("list index > 1000000")\n' +
       '    n = len(l)\n' +
       '    if i >= n:\n' +
       '        l.extend([None]*(i-n+1))\n' +
