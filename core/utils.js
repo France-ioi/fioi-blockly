@@ -68,3 +68,61 @@ Blockly.removeEvents = function() {
   }
   Blockly.eventsBound = [];
 }
+
+// Validate contents of the expression block
+Blockly.validateExpression = function(text, workspace) {
+  try {
+    var acorn = window.acorn ? window.acorn : require('acorn');
+    var walk = acorn.walk ? acorn.walk : require('acorn-walk');
+  } catch(e) {
+    console.error("Couldn't validate expression as acorn or acorn-walk is missing.");
+    return true;
+  }
+
+  // acorn parses programs, it won't tell if there's a ';'
+  if(text.indexOf(';') != -1) {
+    if(window.acornDebug) {
+      console.log("Semi-colon not allowed.");
+    }
+    return false;
+  }
+
+  // Parse the expression
+  try {
+    var ast = acorn.parse(text);
+  } catch(e) {
+    if(window.acornDebug) {
+      console.log("Expression couldn't be parsed.");
+    }
+    return false;
+  }
+
+  var ok = true;
+  var variableList = null;
+  var allowedTypes = ["Literal", "Identifier", "BinaryExpression", "UnaryExpression", "MemberExpression", "ExpressionStatement", "Program"];
+  function checkAst(node, state, type) {
+    if(allowedTypes.indexOf(type) == -1) {
+      if(window.acornDebug) {
+        console.log("Type not allowed : " + type);
+      }
+      ok = false;
+      return;
+    }
+    if(type == "Identifier" && workspace) {
+      if(variableList === null) {
+        variableList = workspace.variableList;
+      }
+      if(variableList.indexOf(node.name) == -1) {
+        if(window.acornDebug) {
+          console.log("Undefined variable : " + node.name);
+        }
+        ok = false;
+      }
+    }
+  }
+
+  // Walk the AST
+  walk.full(ast, checkAst);
+
+  return ok;
+};

@@ -6,6 +6,8 @@ Additions and changes to [Blockly](https://github.com/google/blockly) for France
 
 Requires buttonsAndMessages from [bebras-modules](https://github.com/France-ioi/bebras-modules) for variable prompts.
 
+Block `text_eval` requires [acorn](https://github.com/acornjs/acorn) and the associated utility acorn-walk; they're both available in the bebras-modules repository as well.
+
 ## Usage
 
 Include the file `dist/fioi-blockly.min.js` after including Blockly javascript files, and before using Blockly.
@@ -23,6 +25,10 @@ Blocks to handle dictionnaries.
 * Block `dict_keys`: get the list of keys
 * Block `dicts_create_with`: create a dictionnary
 
+### Tables blocks
+
+Blocks to handle 2D and 3D tables.
+
 ### Inputs blocks
 
 Blocks to handle inputs from stdin.
@@ -36,6 +42,7 @@ Blocks to handle inputs from stdin.
 
 * Block `lists_append`: append an element to a list
 * Block `text_print_noend`: print some text without a newline at the end
+* Block `text_eval`: allow user to input an expression to be evaluated, for instance `list[x+2]*5`
 
 ## Changes
 

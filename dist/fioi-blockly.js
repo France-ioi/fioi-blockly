@@ -747,6 +747,64 @@ Blockly.removeEvents = function() {
   Blockly.eventsBound = [];
 }
 
+// Validate contents of the expression block
+Blockly.validateExpression = function(text, workspace) {
+  try {
+    var acorn = window.acorn ? window.acorn : require('acorn');
+    var walk = acorn.walk ? acorn.walk : require('acorn-walk');
+  } catch(e) {
+    console.error("Couldn't validate expression as acorn or acorn-walk is missing.");
+    return true;
+  }
+
+  // acorn parses programs, it won't tell if there's a ';'
+  if(text.indexOf(';') != -1) {
+    if(window.acornDebug) {
+      console.log("Semi-colon not allowed.");
+    }
+    return false;
+  }
+
+  // Parse the expression
+  try {
+    var ast = acorn.parse(text);
+  } catch(e) {
+    if(window.acornDebug) {
+      console.log("Expression couldn't be parsed.");
+    }
+    return false;
+  }
+
+  var ok = true;
+  var variableList = null;
+  var allowedTypes = ["Literal", "Identifier", "BinaryExpression", "UnaryExpression", "MemberExpression", "ExpressionStatement", "Program"];
+  function checkAst(node, state, type) {
+    if(allowedTypes.indexOf(type) == -1) {
+      if(window.acornDebug) {
+        console.log("Type not allowed : " + type);
+      }
+      ok = false;
+      return;
+    }
+    if(type == "Identifier" && workspace) {
+      if(variableList === null) {
+        variableList = workspace.variableList;
+      }
+      if(variableList.indexOf(node.name) == -1) {
+        if(window.acornDebug) {
+          console.log("Undefined variable : " + node.name);
+        }
+        ok = false;
+      }
+    }
+  }
+
+  // Walk the AST
+  walk.full(ast, checkAst);
+
+  return ok;
+};
+
 // Options for the variables flyout
 Blockly.Variables.flyoutOptions = {
   any: true, // Allow to create any variable
@@ -1232,6 +1290,9 @@ FioiBlockly.Msg.fr.TEXT_PRINT_TITLE = "afficher la ligne %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, avec retour à la ligne après.";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TITLE = "afficher %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, sans retour à la ligne.";
+FioiBlockly.Msg.fr.TEXT_EVAL_TITLE = "évaluer";
+FioiBlockly.Msg.fr.TEXT_EVAL_TOOLTIP = "Évalue l'expression arithmétique spécifiée.";
+FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : l'expression est invalide, ce bloc retournera 'faux' !";
 
 FioiBlockly.Msg.fr.LISTS_APPEND_MSG = "à la liste %1 ajouter l'élément %2";
 FioiBlockly.Msg.fr.LISTS_APPEND_TOOLTIP = "Ajouter un élément à la liste '%1'";
@@ -1268,6 +1329,24 @@ FioiBlockly.Msg.fr.DATA_ITEMOFLIST_TITLE = "élément %1 dans %2";
 FioiBlockly.Msg.fr.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
 
 FioiBlockly.Msg.fr.INVALID_NAME = "Nom invalide, veuillez n'utiliser que des lettres, lettres accentuées françaises, chiffres (sauf comme premier caractère) et tiret bas '_'.";
+
+FioiBlockly.Msg.fr.TABLES_2D_INIT = "initialiser le tableau 2D %1 avec %2 lignes et %3 colonnes contenant %4";
+FioiBlockly.Msg.fr.TABLES_2D_INIT_TOOLTIP = "Crée un tableau avec le nombre spécifié de lignes et de colonnes, et initialise chaque case à la valeur donnée.";
+FioiBlockly.Msg.fr.TABLES_2D_SET = "dans %1[%2] [%3] mettre %4";
+FioiBlockly.Msg.fr.TABLES_3D_SET_TOOLTIP = "Met la valeur dans la case [ligne] [colonne] du tableau %1.";
+FioiBlockly.Msg.fr.TABLES_2D_GET = "%1[%2] [%3]";
+FioiBlockly.Msg.fr.TABLES_2D_GET_TOOLTIP = "Récupère la valeur dans la case [ligne] [colonne] du tableau %1.";
+
+FioiBlockly.Msg.fr.TABLES_3D_INIT = "initialiser le tableau 3D %1 avec %2 couches, %3 lignes, %4 colonnes contenant %5";
+FioiBlockly.Msg.fr.TABLES_3D_INIT_TOOLTIP = "Crée un tableau avec le nombre spécifié de lignes, de colonnes et de niveaux, et initialise chaque case à la valeur donnée.";
+FioiBlockly.Msg.fr.TABLES_3D_SET = "dans %1[%2] [%3] [%4] mettre %5";
+FioiBlockly.Msg.fr.TABLES_3D_SET_TOOLTIP = "Met la valeur dans la case [couche] [ligne] [colonne] du tableau %1.";
+FioiBlockly.Msg.fr.TABLES_3D_GET = "%1[%2] [%3] [%4]";
+FioiBlockly.Msg.fr.TABLES_3D_GET_TOOLTIP = "Récupère la valeur dans la case [couche] [ligne] [colonne] du tableau %1.";
+
+FioiBlockly.Msg.fr.TABLES_VAR_NAME = "tableau";
+FioiBlockly.Msg.fr.TABLES_TOO_BIG = "Dimensions du tableau trop grandes !";
+FioiBlockly.Msg.fr.TABLES_OUT_OF_BOUNDS = "Tentative d'accès à une case hors du tableau !";
 
 // Fill undefined Blockly.Msg messages with messages from the default language
 FioiBlockly.fillLanguage = function() {
@@ -1948,6 +2027,263 @@ if(Blockly.Blocks['procedures_defreturn']) {
   };
 }
 
+if(typeof Blockly.Blocks.tables === 'undefined') {
+  Blockly.Blocks.tables = {};
+}
+
+Blockly.Blocks.tables.HUE = 100;
+
+Blockly.Blocks['tables_2d_init'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.TABLES_2D_INIT,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": Blockly.Msg.TABLES_VAR_NAME
+        },
+        {
+          "type": "input_value",
+          "name": "LINES",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "COLS",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "ITEM"
+        }
+      ],
+      "inputsInline": true,
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.TABLES_2D_INIT_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
+Blockly.Blocks['tables_2d_set'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.TABLES_2D_SET,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": Blockly.Msg.TABLES_VAR_NAME
+        },
+        {
+          "type": "input_value",
+          "name": "LINE",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "COL",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "ITEM"
+        }
+      ],
+      "inputsInline": true,
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.TABLES_2D_SET_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
+Blockly.Blocks['tables_2d_get'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.TABLES_2D_GET,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": Blockly.Msg.TABLES_VAR_NAME
+        },
+        {
+          "type": "input_value",
+          "name": "LINE",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "COL",
+          "check": "Number"
+        }
+      ],
+      "inputsInline": true,
+      "output": null,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.TABLES_2D_GET_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
+Blockly.Blocks['tables_3d_init'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.TABLES_3D_INIT,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": Blockly.Msg.TABLES_VAR_NAME
+        },
+        {
+          "type": "input_value",
+          "name": "LAYERS",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "LINES",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "COLS",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "ITEM"
+        }
+      ],
+      "inputsInline": true,
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.TABLES_3D_INIT_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
+Blockly.Blocks['tables_3d_set'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.TABLES_3D_SET,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": Blockly.Msg.TABLES_VAR_NAME
+        },
+        {
+          "type": "input_value",
+          "name": "LAYER",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "LINE",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "COL",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "ITEM"
+        }
+      ],
+      "inputsInline": true,
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.TABLES_3D_SET_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
+Blockly.Blocks['tables_3d_get'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.TABLES_3D_GET,
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": Blockly.Msg.TABLES_VAR_NAME
+        },
+        {
+          "type": "input_value",
+          "name": "LAYER",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "LINE",
+          "check": "Number"
+        },
+        {
+          "type": "input_value",
+          "name": "COL",
+          "check": "Number"
+        }
+      ],
+      "inputsInline": true,
+      "output": null,
+      "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      return Blockly.Msg.TABLES_3D_GET_TOOLTIP.replace('%1',
+          thisBlock.getFieldValue('VAR'));
+    });
+  }
+};
+
 Blockly.Blocks['text_print_noend'] = {
   /**
    * Block for print statement.
@@ -1970,6 +2306,43 @@ Blockly.Blocks['text_print_noend'] = {
       "tooltip": Blockly.Msg.TEXT_PRINT_NOEND_TOOLTIP,
       "helpUrl": Blockly.Msg.TEXT_PRINT_HELPURL
     });
+  }
+};
+
+Blockly.Blocks['text_eval'] = {
+  // Block to evaluate an expression
+  init: function() {
+    if(Blockly.Colours) {
+      this.setColour(Blockly.Colours.texts.primary, Blockly.Colours.texts.secondary, Blockly.Colours.texts.tertiary);
+    } else {
+      this.setColour(Blockly.Blocks.texts.HUE);
+    }
+    var textInput = new Blockly.FieldTextInput('');
+
+    // Override validate_ behavior to highlight in red but not erase the field
+    var thisBlock = this;
+    textInput.validate_ = function(text) {
+      var valid = true;
+      goog.asserts.assertObject(Blockly.FieldTextInput.htmlInput_);
+      var htmlInput = Blockly.FieldTextInput.htmlInput_;
+      if (this.sourceBlock_) {
+        // Use the expression validator
+        valid = Blockly.validateExpression(htmlInput.value, this.sourceBlock_.workspace);
+      }
+      if(!valid) {
+        Blockly.addClass_(htmlInput, 'blocklyInvalidInput');
+        thisBlock.setWarningText(Blockly.Msg.TEXT_EVAL_INVALID);
+      } else {
+        Blockly.removeClass_(htmlInput, 'blocklyInvalidInput');
+        thisBlock.setWarningText(null);
+      }
+    };
+
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.TEXT_EVAL_TITLE)
+        .appendField(textInput, 'EXPR')
+    this.setOutput(true);
+    this.setTooltip(Blockly.Msg.TEXT_EVAL_TOOLTIP);
   }
 };
 
@@ -2440,7 +2813,150 @@ Blockly.JavaScript['math_change'] = function(block) {
   return incrCode + reportCode;
 };
 
+Blockly.JavaScript['tables_2d_init'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.JavaScript.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  // Use a function to keep scope contained
+  Blockly.JavaScript.definitions_['tables_2d_init'] = '' +
+    'function table2dInit(x, y, a) {\n' +
+    '    if(x > 1000000 || y > 1000000) { throw "' + Blockly.Msg.TABLES_TOO_BIG +'"; }\n' +
+    '    var table = [];\n' +
+    '    var row = [];\n' +
+    '    for(var i = 0; i < y; i++) {\n' +
+    '        row[i] = a;\n' +
+    '    }\n' +
+    '    for(var i = 0; i < x; i++) {\n' +
+    '        table[i] = row.slice(0);\n' +
+    '    }\n' +
+    '    return table;\n' +
+    '}\n';
+
+  var at1 = Blockly.JavaScript.valueToCode(block, 'LINES', Blockly.JavaScript.ORDER_COMMA) || '0';
+  var at2 = Blockly.JavaScript.valueToCode(block, 'COLS', Blockly.JavaScript.ORDER_COMMA) || '0';
+  var value = Blockly.JavaScript.valueToCode(block, 'ITEM',
+      Blockly.JavaScript.ORDER_ASSIGNMENT) || 'null';
+
+  return 'var ' + varName + ' = table2dInit(' + at1 + ', ' + at2 + ', ' + value + ');\n';
+}
+
+Blockly.JavaScript['tables_2d_set'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.JavaScript.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.JavaScript.getAdjusted(block, 'LINE');
+  var at2 = Blockly.JavaScript.getAdjusted(block, 'COL');
+  var value = Blockly.JavaScript.valueToCode(block, 'ITEM',
+      Blockly.JavaScript.ORDER_ASSIGNMENT) || 'null';
+
+  var code = "if(typeof " + varName + "[" + at1 + "] == 'undefined' || typeof " + varName + "[" + at1 + "][" + at2 + "] == 'undefined') { throw \"" + Blockly.Msg.TABLES_OUT_OF_BOUNDS + "\"; }\n";
+  code += varName + '[' + at1 + '][' + at2 + '] = ' + value + ";\n";
+  return code;
+}
+
+Blockly.JavaScript['tables_2d_get'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.JavaScript.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.JavaScript.getAdjusted(block, 'LINE');
+  var at2 = Blockly.JavaScript.getAdjusted(block, 'COL');
+  var code = varName + '[' + at1 + '][' + at2 + ']';
+  return [code, Blockly.JavaScript.ORDER_MEMBER];
+}
+
+Blockly.JavaScript['tables_3d_init'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.JavaScript.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  // Use a function to keep scope contained
+  Blockly.JavaScript.definitions_['tables_3d_init'] = '' +
+    'function table3dInit(x, y, z, a) {\n' +
+    '    if(x > 1000000 || y > 1000000 || z > 1000000) { throw "' + Blockly.Msg.TABLES_TOO_BIG +'"; }\n' +
+    '    var table = [];\n' +
+    '    var row = [];\n' +
+    '    for(var i = 0; i < z; i++) {\n' +
+    '        row[i] = a;\n' +
+    '    }\n' +
+    '    for(var i = 0; i < x; i++) {\n' +
+    '        var layer = [];\n' +
+    '        for(var j = 0; j < y; j++) {\n' +
+    '            layer[j] = row.slice(0);\n' +
+    '        }\n' +
+    '        table[i] = layer;\n' +
+    '    }\n' +
+    '    return table;\n' +
+    '}\n';
+
+  var at1 = Blockly.JavaScript.valueToCode(block, 'LAYERS', Blockly.JavaScript.ORDER_COMMA) || '0';
+  var at2 = Blockly.JavaScript.valueToCode(block, 'LINES', Blockly.JavaScript.ORDER_COMMA) || '0';
+  var at3 = Blockly.JavaScript.valueToCode(block, 'COLS', Blockly.JavaScript.ORDER_COMMA) || '0';
+  var value = Blockly.JavaScript.valueToCode(block, 'ITEM',
+      Blockly.JavaScript.ORDER_ASSIGNMENT) || 'null';
+
+  return 'var ' + varName + ' = table3dInit(' + at1 + ', ' + at2 + ', ' + at3 + ', ' + value + ');\n';
+}
+
+Blockly.JavaScript['tables_3d_set'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.JavaScript.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.JavaScript.getAdjusted(block, 'LAYER');
+  var at2 = Blockly.JavaScript.getAdjusted(block, 'LINE');
+  var at3 = Blockly.JavaScript.getAdjusted(block, 'COL');
+  var value = Blockly.JavaScript.valueToCode(block, 'ITEM',
+      Blockly.JavaScript.ORDER_ASSIGNMENT) || 'null';
+
+  var code = "if(typeof " + varName + "[" + at1 + "] == 'undefined' || typeof " + varName + "[" + at1 + "][" + at2 + "] == 'undefined' || typeof " + varName + "[" + at1 + "][" + at2 + "][" + at3 + "] == 'undefined') { throw \"" + Blockly.Msg.TABLES_OUT_OF_BOUNDS + "\"; }\n";
+  code += varName + '[' + at1 + '][' + at2 + '][' + at3 + '] = ' + value + ";\n";
+  return code;
+}
+
+Blockly.JavaScript['tables_3d_get'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.JavaScript.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.JavaScript.getAdjusted(block, 'LAYER');
+  var at2 = Blockly.JavaScript.getAdjusted(block, 'LINE');
+  var at3 = Blockly.JavaScript.getAdjusted(block, 'COL');
+  var code = varName + '[' + at1 + '][' + at2 + '][' + at3 + ']';
+  return [code, Blockly.JavaScript.ORDER_MEMBER];
+}
+
+
 Blockly.JavaScript['text_print_noend'] = Blockly.JavaScript['text_print'];
+
+Blockly.JavaScript['text_eval'] = function(block) {
+  var expr = block.getFieldValue('EXPR');
+  if(Blockly.validateExpression(expr)) {
+    return [expr, Blockly.JavaScript.ORDER_NONE];
+  } else {
+    return ['false', Blockly.JavaScript.ORDER_ATOMIC];
+  }
+};
 
 Blockly.JavaScript['variables_set'] = function(block) {
   // Variable setter.
@@ -2691,9 +3207,130 @@ Blockly.Python['controls_repeat_ext'] = function(block) {
 
 Blockly.Python['controls_repeat'] = Blockly.Python['controls_repeat_ext'];
 
+Blockly.Python['tables_2d_init'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.Python.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  // Use a function to keep scope contained
+  Blockly.Python.definitions_['tables_2d_init'] = '' +
+    'def table2dInit(x, y, a):\n' +
+    '    if x > 1000000 or y > 1000000: raise IndexError("' + Blockly.Msg.TABLES_TOO_BIG +'")\n' +
+    '    return [[a] * y for i in range(x)]';
+
+  var at1 = Blockly.Python.valueToCode(block, 'LINES', Blockly.Python.ORDER_COMMA) || '0';
+  var at2 = Blockly.Python.valueToCode(block, 'COLS', Blockly.Python.ORDER_COMMA) || '0';
+  var value = Blockly.Python.valueToCode(block, 'ITEM',
+      Blockly.Python.ORDER_ASSIGNMENT) || 'null';
+
+  return varName + ' = table2dInit(' + at1 + ', ' + at2 + ', ' + value + ');\n';
+}
+
+Blockly.Python['tables_2d_set'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.Python.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.Python.getAdjustedInt(block, 'LINE');
+  var at2 = Blockly.Python.getAdjustedInt(block, 'COL');
+  var value = Blockly.Python.valueToCode(block, 'ITEM',
+      Blockly.Python.ORDER_NONE) || 'None';
+
+  var code = 'if ' + at1 + ' >= len(' + varName + ') or ' + at2 + ' >= len(' + varName + '[' + at1 + ']): raise IndexError("' + Blockly.Msg.TABLES_OUT_OF_BOUNDS + '")\n';
+  code += varName + '[' + at1 + '][' + at2 + '] = ' + value + "\n";
+  return code;
+}
+
+Blockly.Python['tables_2d_get'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.Python.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.Python.getAdjustedInt(block, 'LINE');
+  var at2 = Blockly.Python.getAdjustedInt(block, 'COL');
+  var code = varName + '[' + at1 + '][' + at2 + ']';
+  return [code, Blockly.Python.ORDER_MEMBER];
+}
+
+Blockly.Python['tables_3d_init'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.Python.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  // Use a function to keep scope contained
+  Blockly.Python.definitions_['tables_3d_init'] = '' +
+    'def table3dInit(x, y, z, a):\n' +
+    '    if x > 1000000 or y > 1000000 or z > 1000000: raise IndexError("' + Blockly.Msg.TABLES_TOO_BIG +'")\n' +
+    '    return [[[a] * z for i in range(y)] for j in range(x)]';
+
+  var at1 = Blockly.Python.valueToCode(block, 'LAYERS', Blockly.Python.ORDER_COMMA) || '0';
+  var at2 = Blockly.Python.valueToCode(block, 'LINES', Blockly.Python.ORDER_COMMA) || '0';
+  var at3 = Blockly.Python.valueToCode(block, 'COLS', Blockly.Python.ORDER_COMMA) || '0';
+  var value = Blockly.Python.valueToCode(block, 'ITEM',
+      Blockly.Python.ORDER_ASSIGNMENT) || 'null';
+
+  return varName + ' = table3dInit(' + at1 + ', ' + at2 + ', ' + at3 + ', ' + value + ');\n';
+}
+
+Blockly.Python['tables_3d_set'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.Python.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.Python.getAdjustedInt(block, 'LAYER');
+  var at2 = Blockly.Python.getAdjustedInt(block, 'LINE');
+  var at3 = Blockly.Python.getAdjustedInt(block, 'COL');
+  var value = Blockly.Python.valueToCode(block, 'ITEM',
+      Blockly.Python.ORDER_NONE) || 'None';
+
+  var code = 'if ' + at1 + ' >= len(' + varName + ') or ' + at2 + ' >= len(' + varName + '[' + at1 + ']) or ' + at3 + ' >= len(' + varName + '[' + at1 + '][' + at2 + ']): raise IndexError("' + Blockly.Msg.TABLES_OUT_OF_BOUNDS + '")\n';
+  code += varName + '[' + at1 + '][' + at2 + '][' + at3 + '] = ' + value + "\n";
+  return code;
+}
+
+Blockly.Python['tables_3d_get'] = function(block) {
+  var blockVarName = block.getFieldValue('VAR');
+  if(blockVarName) {
+    var varName = Blockly.Python.variableDB_.getName(blockVarName, Blockly.Variables.NAME_TYPE);
+  } else {
+    var varName = 'unnamed_variable'; // Block is still loading
+  }
+
+  var at1 = Blockly.Python.getAdjustedInt(block, 'LAYER');
+  var at2 = Blockly.Python.getAdjustedInt(block, 'LINE');
+  var at3 = Blockly.Python.getAdjustedInt(block, 'COL');
+  var code = varName + '[' + at1 + '][' + at2 + '][' + at3 + ']';
+  return [code, Blockly.Python.ORDER_MEMBER];
+}
+
+
 Blockly.Python['text_print_noend'] = function(block) {
   // Print statement.
   var msg = Blockly.Python.valueToCode(block, 'TEXT',
       Blockly.Python.ORDER_NONE) || '\'\'';
   return 'print(' + msg + ', end="")\n';
+};
+
+Blockly.Python['text_eval'] = function(block) {
+  var expr = block.getFieldValue('EXPR');
+  if(Blockly.validateExpression(expr)) {
+    return [expr, Blockly.Python.ORDER_NONE];
+  } else {
+    return ['False', Blockly.Python.ORDER_ATOMIC];
+  }
 };

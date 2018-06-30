@@ -23,6 +23,9 @@ FioiBlockly.Msg.fr.TEXT_PRINT_TITLE = "afficher la ligne %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, avec retour à la ligne après.";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TITLE = "afficher %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, sans retour à la ligne.";
+FioiBlockly.Msg.fr.TEXT_EVAL_TITLE = "évaluer";
+FioiBlockly.Msg.fr.TEXT_EVAL_TOOLTIP = "Évalue l'expression arithmétique spécifiée.";
+FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : l'expression est invalide, ce bloc retournera 'faux' !";
 
 FioiBlockly.Msg.fr.LISTS_APPEND_MSG = "à la liste %1 ajouter l'élément %2";
 FioiBlockly.Msg.fr.LISTS_APPEND_TOOLTIP = "Ajouter un élément à la liste '%1'";
@@ -59,3 +62,21 @@ FioiBlockly.Msg.fr.DATA_ITEMOFLIST_TITLE = "élément %1 dans %2";
 FioiBlockly.Msg.fr.DATA_LISTREPEAT_TITLE = "initialiser la liste %1 avec %2 répété %3 fois";
 
 FioiBlockly.Msg.fr.INVALID_NAME = "Nom invalide, veuillez n'utiliser que des lettres, lettres accentuées françaises, chiffres (sauf comme premier caractère) et tiret bas '_'.";
+
+FioiBlockly.Msg.fr.TABLES_2D_INIT = "initialiser le tableau 2D %1 avec %2 lignes et %3 colonnes contenant %4";
+FioiBlockly.Msg.fr.TABLES_2D_INIT_TOOLTIP = "Crée un tableau avec le nombre spécifié de lignes et de colonnes, et initialise chaque case à la valeur donnée.";
+FioiBlockly.Msg.fr.TABLES_2D_SET = "dans %1[%2] [%3] mettre %4";
+FioiBlockly.Msg.fr.TABLES_3D_SET_TOOLTIP = "Met la valeur dans la case [ligne] [colonne] du tableau %1.";
+FioiBlockly.Msg.fr.TABLES_2D_GET = "%1[%2] [%3]";
+FioiBlockly.Msg.fr.TABLES_2D_GET_TOOLTIP = "Récupère la valeur dans la case [ligne] [colonne] du tableau %1.";
+
+FioiBlockly.Msg.fr.TABLES_3D_INIT = "initialiser le tableau 3D %1 avec %2 couches, %3 lignes, %4 colonnes contenant %5";
+FioiBlockly.Msg.fr.TABLES_3D_INIT_TOOLTIP = "Crée un tableau avec le nombre spécifié de lignes, de colonnes et de niveaux, et initialise chaque case à la valeur donnée.";
+FioiBlockly.Msg.fr.TABLES_3D_SET = "dans %1[%2] [%3] [%4] mettre %5";
+FioiBlockly.Msg.fr.TABLES_3D_SET_TOOLTIP = "Met la valeur dans la case [couche] [ligne] [colonne] du tableau %1.";
+FioiBlockly.Msg.fr.TABLES_3D_GET = "%1[%2] [%3] [%4]";
+FioiBlockly.Msg.fr.TABLES_3D_GET_TOOLTIP = "Récupère la valeur dans la case [couche] [ligne] [colonne] du tableau %1.";
+
+FioiBlockly.Msg.fr.TABLES_VAR_NAME = "tableau";
+FioiBlockly.Msg.fr.TABLES_TOO_BIG = "Dimensions du tableau trop grandes !";
+FioiBlockly.Msg.fr.TABLES_OUT_OF_BOUNDS = "Tentative d'accès à une case hors du tableau !";
