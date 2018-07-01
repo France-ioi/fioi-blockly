@@ -35,20 +35,29 @@ Blockly.Blocks['text_eval'] = {
 
     // Override validate_ behavior to highlight in red but not erase the field
     var thisBlock = this;
+    var msgTimeout = null;
     textInput.validate_ = function(text) {
-      var valid = true;
+      var validationMsg = null;
       goog.asserts.assertObject(Blockly.FieldTextInput.htmlInput_);
       var htmlInput = Blockly.FieldTextInput.htmlInput_;
       if (this.sourceBlock_) {
         // Use the expression validator
-        valid = Blockly.validateExpression(htmlInput.value, this.sourceBlock_.workspace);
+        validationMsg = Blockly.validateExpression(htmlInput.value, this.sourceBlock_.workspace);
       }
-      if(!valid) {
+      if(validationMsg !== null) {
         Blockly.addClass_(htmlInput, 'blocklyInvalidInput');
-        thisBlock.setWarningText(Blockly.Msg.TEXT_EVAL_INVALID);
+        if(msgTimeout) { clearTimeout(msgTimeout); }
+        msgTimeout = setTimeout(function() {
+          thisBlock.setWarningText(Blockly.Msg.TEXT_EVAL_INVALID.replace('%1', validationMsg));
+          textInput.resizeEditor_();
+          }, 2000);
       } else {
         Blockly.removeClass_(htmlInput, 'blocklyInvalidInput');
         thisBlock.setWarningText(null);
+        if(msgTimeout) {
+          clearTimeout(msgTimeout);
+          msgTimeout = null;
+        }
       }
     };
 

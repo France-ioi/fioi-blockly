@@ -23,9 +23,15 @@ FioiBlockly.Msg.fr.TEXT_PRINT_TITLE = "afficher la ligne %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, avec retour à la ligne après.";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TITLE = "afficher %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, sans retour à la ligne.";
+
 FioiBlockly.Msg.fr.TEXT_EVAL_TITLE = "évaluer";
 FioiBlockly.Msg.fr.TEXT_EVAL_TOOLTIP = "Évalue l'expression arithmétique spécifiée.";
-FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : l'expression est invalide, ce bloc retournera 'faux' !";
+FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : %1 ; ce bloc retournera 'faux' !";
+
+FioiBlockly.Msg.fr.EVAL_ERROR_SEMICOLON = "le point-virgule ';' n'est pas autorisé";
+FioiBlockly.Msg.fr.EVAL_ERROR_SYNTAX = "l'expression n'est pas syntaxiquement valide";
+FioiBlockly.Msg.fr.EVAL_ERROR_TYPE = "ce type d'expression (%1) n'est pas autorisé";
+FioiBlockly.Msg.fr.EVAL_ERROR_VAR = "cette expression utilise une variable '%1' non définie";
 
 FioiBlockly.Msg.fr.LISTS_APPEND_MSG = "à la liste %1 ajouter l'élément %2";
 FioiBlockly.Msg.fr.LISTS_APPEND_TOOLTIP = "Ajouter un élément à la liste '%1'";

@@ -748,42 +748,34 @@ Blockly.removeEvents = function() {
 }
 
 // Validate contents of the expression block
+// Returns null if the expression is valid
 Blockly.validateExpression = function(text, workspace) {
   try {
     var acorn = window.acorn ? window.acorn : require('acorn');
     var walk = acorn.walk ? acorn.walk : require('acorn-walk');
   } catch(e) {
     console.error("Couldn't validate expression as acorn or acorn-walk is missing.");
-    return true;
+    return null;
   }
 
   // acorn parses programs, it won't tell if there's a ';'
   if(text.indexOf(';') != -1) {
-    if(window.acornDebug) {
-      console.log("Semi-colon not allowed.");
-    }
-    return false;
+    return Blockly.Msg.EVAL_ERROR_SEMICOLON;
   }
 
   // Parse the expression
   try {
     var ast = acorn.parse(text);
   } catch(e) {
-    if(window.acornDebug) {
-      console.log("Expression couldn't be parsed.");
-    }
-    return false;
+    return Blockly.Msg.EVAL_ERROR_SYNTAX;
   }
 
-  var ok = true;
+  var msg = null;
   var variableList = null;
   var allowedTypes = ["Literal", "Identifier", "BinaryExpression", "UnaryExpression", "MemberExpression", "ExpressionStatement", "Program"];
   function checkAst(node, state, type) {
     if(allowedTypes.indexOf(type) == -1) {
-      if(window.acornDebug) {
-        console.log("Type not allowed : " + type);
-      }
-      ok = false;
+      msg = Blockly.Msg.EVAL_ERROR_TYPE.replace('%1', type);
       return;
     }
     if(type == "Identifier" && workspace) {
@@ -791,10 +783,7 @@ Blockly.validateExpression = function(text, workspace) {
         variableList = workspace.variableList;
       }
       if(variableList.indexOf(node.name) == -1) {
-        if(window.acornDebug) {
-          console.log("Undefined variable : " + node.name);
-        }
-        ok = false;
+        msg = Blockly.Msg.EVAL_ERROR_VAR.replace('%1', node.name);
       }
     }
   }
@@ -802,7 +791,7 @@ Blockly.validateExpression = function(text, workspace) {
   // Walk the AST
   walk.full(ast, checkAst);
 
-  return ok;
+  return msg;
 };
 
 // Options for the variables flyout
@@ -1290,9 +1279,15 @@ FioiBlockly.Msg.fr.TEXT_PRINT_TITLE = "afficher la ligne %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, avec retour à la ligne après.";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TITLE = "afficher %1";
 FioiBlockly.Msg.fr.TEXT_PRINT_NOEND_TOOLTIP = "Afficher le texte, le nombre ou une autre valeur spécifiée, sans retour à la ligne.";
+
 FioiBlockly.Msg.fr.TEXT_EVAL_TITLE = "évaluer";
 FioiBlockly.Msg.fr.TEXT_EVAL_TOOLTIP = "Évalue l'expression arithmétique spécifiée.";
-FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : l'expression est invalide, ce bloc retournera 'faux' !";
+FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : %1 ; ce bloc retournera 'faux' !";
+
+FioiBlockly.Msg.fr.EVAL_ERROR_SEMICOLON = "le point-virgule ';' n'est pas autorisé";
+FioiBlockly.Msg.fr.EVAL_ERROR_SYNTAX = "l'expression n'est pas syntaxiquement valide";
+FioiBlockly.Msg.fr.EVAL_ERROR_TYPE = "ce type d'expression (%1) n'est pas autorisé";
+FioiBlockly.Msg.fr.EVAL_ERROR_VAR = "cette expression utilise une variable '%1' non définie";
 
 FioiBlockly.Msg.fr.LISTS_APPEND_MSG = "à la liste %1 ajouter l'élément %2";
 FioiBlockly.Msg.fr.LISTS_APPEND_TOOLTIP = "Ajouter un élément à la liste '%1'";
@@ -2321,20 +2316,29 @@ Blockly.Blocks['text_eval'] = {
 
     // Override validate_ behavior to highlight in red but not erase the field
     var thisBlock = this;
+    var msgTimeout = null;
     textInput.validate_ = function(text) {
-      var valid = true;
+      var validationMsg = null;
       goog.asserts.assertObject(Blockly.FieldTextInput.htmlInput_);
       var htmlInput = Blockly.FieldTextInput.htmlInput_;
       if (this.sourceBlock_) {
         // Use the expression validator
-        valid = Blockly.validateExpression(htmlInput.value, this.sourceBlock_.workspace);
+        validationMsg = Blockly.validateExpression(htmlInput.value, this.sourceBlock_.workspace);
       }
-      if(!valid) {
+      if(validationMsg !== null) {
         Blockly.addClass_(htmlInput, 'blocklyInvalidInput');
-        thisBlock.setWarningText(Blockly.Msg.TEXT_EVAL_INVALID);
+        if(msgTimeout) { clearTimeout(msgTimeout); }
+        msgTimeout = setTimeout(function() {
+          thisBlock.setWarningText(Blockly.Msg.TEXT_EVAL_INVALID.replace('%1', validationMsg));
+          textInput.resizeEditor_();
+          }, 2000);
       } else {
         Blockly.removeClass_(htmlInput, 'blocklyInvalidInput');
         thisBlock.setWarningText(null);
+        if(msgTimeout) {
+          clearTimeout(msgTimeout);
+          msgTimeout = null;
+        }
       }
     };
 
@@ -2951,7 +2955,7 @@ Blockly.JavaScript['text_print_noend'] = Blockly.JavaScript['text_print'];
 
 Blockly.JavaScript['text_eval'] = function(block) {
   var expr = block.getFieldValue('EXPR');
-  if(Blockly.validateExpression(expr)) {
+  if(Blockly.validateExpression(expr) === null) {
     return [expr, Blockly.JavaScript.ORDER_NONE];
   } else {
     return ['false', Blockly.JavaScript.ORDER_ATOMIC];
@@ -3328,7 +3332,7 @@ Blockly.Python['text_print_noend'] = function(block) {
 
 Blockly.Python['text_eval'] = function(block) {
   var expr = block.getFieldValue('EXPR');
-  if(Blockly.validateExpression(expr)) {
+  if(Blockly.validateExpression(expr) === null) {
     return [expr, Blockly.Python.ORDER_NONE];
   } else {
     return ['False', Blockly.Python.ORDER_ATOMIC];

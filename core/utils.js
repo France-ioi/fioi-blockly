@@ -70,42 +70,34 @@ Blockly.removeEvents = function() {
 }
 
 // Validate contents of the expression block
+// Returns null if the expression is valid
 Blockly.validateExpression = function(text, workspace) {
   try {
     var acorn = window.acorn ? window.acorn : require('acorn');
     var walk = acorn.walk ? acorn.walk : require('acorn-walk');
   } catch(e) {
     console.error("Couldn't validate expression as acorn or acorn-walk is missing.");
-    return true;
+    return null;
   }
 
   // acorn parses programs, it won't tell if there's a ';'
   if(text.indexOf(';') != -1) {
-    if(window.acornDebug) {
-      console.log("Semi-colon not allowed.");
-    }
-    return false;
+    return Blockly.Msg.EVAL_ERROR_SEMICOLON;
   }
 
   // Parse the expression
   try {
     var ast = acorn.parse(text);
   } catch(e) {
-    if(window.acornDebug) {
-      console.log("Expression couldn't be parsed.");
-    }
-    return false;
+    return Blockly.Msg.EVAL_ERROR_SYNTAX;
   }
 
-  var ok = true;
+  var msg = null;
   var variableList = null;
   var allowedTypes = ["Literal", "Identifier", "BinaryExpression", "UnaryExpression", "MemberExpression", "ExpressionStatement", "Program"];
   function checkAst(node, state, type) {
     if(allowedTypes.indexOf(type) == -1) {
-      if(window.acornDebug) {
-        console.log("Type not allowed : " + type);
-      }
-      ok = false;
+      msg = Blockly.Msg.EVAL_ERROR_TYPE.replace('%1', type);
       return;
     }
     if(type == "Identifier" && workspace) {
@@ -113,10 +105,7 @@ Blockly.validateExpression = function(text, workspace) {
         variableList = workspace.variableList;
       }
       if(variableList.indexOf(node.name) == -1) {
-        if(window.acornDebug) {
-          console.log("Undefined variable : " + node.name);
-        }
-        ok = false;
+        msg = Blockly.Msg.EVAL_ERROR_VAR.replace('%1', node.name);
       }
     }
   }
@@ -124,5 +113,5 @@ Blockly.validateExpression = function(text, workspace) {
   // Walk the AST
   walk.full(ast, checkAst);
 
-  return ok;
+  return msg;
 };
