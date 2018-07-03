@@ -7,9 +7,10 @@ Blockly.Python['text_print_noend'] = function(block) {
 
 Blockly.Python['text_eval'] = function(block) {
   var expr = block.getFieldValue('EXPR');
-  if(Blockly.validateExpression(expr) === null) {
-    return [expr, Blockly.Python.ORDER_NONE];
+  var reindexExpr = Blockly.reindexExpression(expr);
+  if(reindexExpr === null) {
+    return ['false', Blockly.Python.ORDER_ATOMIC];
   } else {
-    return ['False', Blockly.Python.ORDER_ATOMIC];
+    return [reindexExpr, Blockly.Python.ORDER_NONE];
   }
 };
