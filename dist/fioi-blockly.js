@@ -2110,13 +2110,11 @@ Blockly.Blocks['tables_2d_init'] = {
         },
         {
           "type": "input_value",
-          "name": "LINES",
-          "check": "Number"
+          "name": "LINES"
         },
         {
           "type": "input_value",
-          "name": "COLS",
-          "check": "Number"
+          "name": "COLS"
         },
         {
           "type": "input_value",
@@ -2151,13 +2149,11 @@ Blockly.Blocks['tables_2d_set'] = {
         },
         {
           "type": "input_value",
-          "name": "LINE",
-          "check": "Number"
+          "name": "LINE"
         },
         {
           "type": "input_value",
-          "name": "COL",
-          "check": "Number"
+          "name": "COL"
         },
         {
           "type": "input_value",
@@ -2192,13 +2188,11 @@ Blockly.Blocks['tables_2d_get'] = {
         },
         {
           "type": "input_value",
-          "name": "LINE",
-          "check": "Number"
+          "name": "LINE"
         },
         {
           "type": "input_value",
-          "name": "COL",
-          "check": "Number"
+          "name": "COL"
         }
       ],
       "inputsInline": true,
@@ -2233,13 +2227,11 @@ Blockly.Blocks['tables_3d_init'] = {
         },
         {
           "type": "input_value",
-          "name": "LINES",
-          "check": "Number"
+          "name": "LINES"
         },
         {
           "type": "input_value",
-          "name": "COLS",
-          "check": "Number"
+          "name": "COLS"
         },
         {
           "type": "input_value",
@@ -2274,18 +2266,15 @@ Blockly.Blocks['tables_3d_set'] = {
         },
         {
           "type": "input_value",
-          "name": "LAYER",
-          "check": "Number"
+          "name": "LAYER"
         },
         {
           "type": "input_value",
-          "name": "LINE",
-          "check": "Number"
+          "name": "LINE"
         },
         {
           "type": "input_value",
-          "name": "COL",
-          "check": "Number"
+          "name": "COL"
         },
         {
           "type": "input_value",
@@ -2320,18 +2309,15 @@ Blockly.Blocks['tables_3d_get'] = {
         },
         {
           "type": "input_value",
-          "name": "LAYER",
-          "check": "Number"
+          "name": "LAYER"
         },
         {
           "type": "input_value",
-          "name": "LINE",
-          "check": "Number"
+          "name": "LINE"
         },
         {
           "type": "input_value",
-          "name": "COL",
-          "check": "Number"
+          "name": "COL"
         }
       ],
       "inputsInline": true,
