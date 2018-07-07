@@ -33,7 +33,9 @@ Blockly.Python['tables_2d_set'] = function(block) {
   var value = Blockly.Python.valueToCode(block, 'ITEM',
       Blockly.Python.ORDER_NONE) || 'None';
 
-  var code = 'if ' + at1 + ' >= len(' + varName + ') or ' + at2 + ' >= len(' + varName + '[' + at1 + ']): raise IndexError("' + Blockly.Msg.TABLES_OUT_OF_BOUNDS + '")\n';
+  var code = '';
+  // TODO :: set this as an option
+//  code += 'if ' + at1 + ' >= len(' + varName + ') or ' + at2 + ' >= len(' + varName + '[' + at1 + ']): raise IndexError("' + Blockly.Msg.TABLES_OUT_OF_BOUNDS + '")\n';
   code += varName + '[' + at1 + '][' + at2 + '] = ' + value + "\n";
   return code;
 }
@@ -89,7 +91,9 @@ Blockly.Python['tables_3d_set'] = function(block) {
   var value = Blockly.Python.valueToCode(block, 'ITEM',
       Blockly.Python.ORDER_NONE) || 'None';
 
-  var code = 'if ' + at1 + ' >= len(' + varName + ') or ' + at2 + ' >= len(' + varName + '[' + at1 + ']) or ' + at3 + ' >= len(' + varName + '[' + at1 + '][' + at2 + ']): raise IndexError("' + Blockly.Msg.TABLES_OUT_OF_BOUNDS + '")\n';
+  var code = '';
+  // TODO :: set this as an option
+//  code += 'if ' + at1 + ' >= len(' + varName + ') or ' + at2 + ' >= len(' + varName + '[' + at1 + ']) or ' + at3 + ' >= len(' + varName + '[' + at1 + '][' + at2 + ']): raise IndexError("' + Blockly.Msg.TABLES_OUT_OF_BOUNDS + '")\n';
   code += varName + '[' + at1 + '][' + at2 + '][' + at3 + '] = ' + value + "\n";
   return code;
 }

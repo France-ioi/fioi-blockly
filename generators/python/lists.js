@@ -30,27 +30,33 @@ Blockly.Python['lists_setIndex'] = function(block) {
   }
 
   if(mode == 'SET') {
-    Blockly.Python.definitions_['lists_assignIndex'] = '' +
+    // TODO :: set this as an option
+/*    Blockly.Python.definitions_['lists_assignIndex'] = '' +
       'def assignIndex(l, i, x):\n' +
       '    if i > 1000000:\n' +
       '        raise IndexError("list index > 1000000")\n' +
       '    n = len(l)\n' +
       '    if i >= n:\n' +
       '        l.extend([None]*(i-n+1))\n' +
-      '    l[i] = x\n';
+      '    l[i] = x\n';*/
+  }
+  function makeAssignIndex(l, a, v) {
+    // TODO :: set this as an option
+//    return 'assignIndex(' + l + ', ' + a + ', ' + v + ')\n';
+    return list + '[' + a + '] = ' + v + '\n';
   }
 
   switch (where) {
     case 'FIRST':
       if (mode == 'SET') {
-        return 'assignIndex(' + list + ', 0, ' + value + ')\n';
+        return makeAssignIndex(list, 0, value);
       } else if (mode == 'INSERT') {
         return list + '.insert(0, ' + value + ')\n';
       }
       break;
     case 'LAST':
         if (mode == 'SET') {
-          return 'assignIndex(' + list + ', -1, ' + value + ')\n';
+          return makeAssignIndex(list, -1, value);
         } else if (mode == 'INSERT') {
           return list + '.append(' + value + ')\n';
         }
@@ -58,7 +64,7 @@ Blockly.Python['lists_setIndex'] = function(block) {
     case 'FROM_START':
       var at = Blockly.Python.getAdjustedInt(block, 'AT');
         if (mode == 'SET') {
-          return 'assignIndex(' + list + ', ' + at + ', ' + value + ')\n';
+          return makeAssignIndex(list, at, value);
         } else if (mode == 'INSERT') {
           return list + '.insert(' + at + ', ' + value + ')\n';
         }
@@ -66,7 +72,7 @@ Blockly.Python['lists_setIndex'] = function(block) {
     case 'FROM_END':
       var at = Blockly.Python.getAdjustedInt(block, 'AT', 1, true);
         if (mode == 'SET') {
-          return 'assignIndex(' + list + ', ' + at + ', ' + value + ')\n';
+          return makeAssignIndex(list, at, value);
         } else if (mode == 'INSERT') {
           return list + '.insert(' + at + ', ' + value + ')\n';
         }
@@ -78,7 +84,7 @@ Blockly.Python['lists_setIndex'] = function(block) {
             'tmp_x', Blockly.Variables.NAME_TYPE);
         code += xVar + ' = int(random.random() * len(' + list + '))\n';
         if (mode == 'SET') {
-          code += 'assignIndex(' + list + ', ' + xVar + ', ' + value + ')\n';
+          code += makeAssignIndex(list, xVar, value);
           return code;
         } else if (mode == 'INSERT') {
           code += list + '.insert(' + xVar + ', ' + value + ')\n';
