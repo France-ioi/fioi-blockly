@@ -2197,6 +2197,7 @@ Blockly.Blocks['tables_2d_get'] = {
       ],
       "inputsInline": true,
       "output": null,
+      "outputShape": Blockly.OUTPUT_SHAPE_ROUND,
       "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
       "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
       "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
@@ -2322,6 +2323,7 @@ Blockly.Blocks['tables_3d_get'] = {
       ],
       "inputsInline": true,
       "output": null,
+      "outputShape": Blockly.OUTPUT_SHAPE_ROUND,
       "colour": Blockly.Colours ? Blockly.Colours.data.primary : Blockly.Blocks.tables.HUE,
       "colourSecondary": Blockly.Colours ? Blockly.Colours.data.secondary : null,
       "colourTertiary": Blockly.Colours ? Blockly.Colours.data.tertiary : null
