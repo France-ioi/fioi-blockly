@@ -1,6 +1,7 @@
 // Remove some characters which make JavaScript.STATEMENT_PREFIX instructions
 // generation go wrong
-Blockly.genUid.soup_ = '!#()*+,-./:;=?@[]_`{|}~' +
+
+(Blockly.genUid ? Blockly.genUid : Blockly.utils.genUid).soup_ = '!#()*+,-./:;=?@[]_`{|}~' +
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 // Modify to save somewhere all bound events
