@@ -35,6 +35,7 @@ FioiBlockly.Msg.fr.EVAL_ERROR_VAR = "cette expression utilise une variable '%1' 
 
 FioiBlockly.Msg.fr.LISTS_APPEND_MSG = "à la liste %1 ajouter l'élément %2";
 FioiBlockly.Msg.fr.LISTS_APPEND_TOOLTIP = "Ajouter un élément à la liste '%1'";
+FioiBlockly.Msg.fr.LISTS_CREATE_WITH_TOO_LARGE = "Taille de la liste trop grande : %1 > taille maximale autorisée %2"
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_FIRST = "au début";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_FROM_END = "à l'indice depuis la fin";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_FROM_START = "à l'indice";

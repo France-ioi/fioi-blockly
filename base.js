@@ -6,6 +6,8 @@ FioiBlockly.defaultLang = 'fr';
 
 FioiBlockly.langErrorDisplayed = {};
 
+FioiBlockly.maxListSize = 100;
+
 // Import messages for a language
 FioiBlockly.loadLanguage = function(lang) {
   if(!FioiBlockly.Msg[lang] && !FioiBlockly.langErrorDisplayed[lang]) {

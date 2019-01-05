@@ -15,6 +15,10 @@ Blockly.JavaScript.init = function(workspace) {
   } else {
     Blockly.JavaScript.variableDB_.reset();
   }
+
+  // Create a dictionary of external functions to be registered by the
+  // interpreter
+  Blockly.JavaScript.externalFunctions = {};
 };
 
 /**
