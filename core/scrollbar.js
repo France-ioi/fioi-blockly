@@ -1,3 +1,6 @@
+// Force thickness to always be 15
+Blockly.Scrollbar.scrollbarThickness = 15;
+
 /**
  * Recalculate a horizontal scrollbar's location on the screen and path length.
  * This should be called when the layout or size of the window has changed.

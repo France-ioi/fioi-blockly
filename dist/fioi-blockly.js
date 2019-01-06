@@ -6,6 +6,8 @@ FioiBlockly.defaultLang = 'fr';
 
 FioiBlockly.langErrorDisplayed = {};
 
+FioiBlockly.maxListSize = 100;
+
 // Import messages for a language
 FioiBlockly.loadLanguage = function(lang) {
   if(!FioiBlockly.Msg[lang] && !FioiBlockly.langErrorDisplayed[lang]) {
@@ -597,6 +599,9 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
   return xmlList;
 };
 
+// Force thickness to always be 15
+Blockly.Scrollbar.scrollbarThickness = 15;
+
 /**
  * Recalculate a horizontal scrollbar's location on the screen and path length.
  * This should be called when the layout or size of the window has changed.
@@ -675,6 +680,40 @@ Blockly.onMouseUp_ = function(e) {
   }
 };
 
+
+FioiBlockly.trashcanScale = 0.8;
+
+Blockly.Trashcan.prototype.position = function() {
+  var metrics = this.workspace_.getMetrics();
+  if (!metrics) {
+    // There are no metrics available (workspace is probably not visible).
+    return;
+  }
+  if (this.workspace_.RTL) {
+    this.left_ = this.MARGIN_SIDE_ + Blockly.Scrollbar.scrollbarThickness;
+    if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_LEFT) {
+      this.left_ += metrics.flyoutWidth;
+      if (this.workspace_.toolbox_) {
+        this.left_ += metrics.absoluteLeft;
+      }
+    }
+  } else {
+    this.left_ = metrics.viewWidth + metrics.absoluteLeft -
+        this.WIDTH_ * FioiBlockly.trashcanScale - this.MARGIN_SIDE_ - Blockly.Scrollbar.scrollbarThickness;
+
+    if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_RIGHT) {
+      this.left_ -= metrics.flyoutWidth;
+    }
+  }
+  this.top_ = metrics.viewHeight + metrics.absoluteTop -
+      (this.BODY_HEIGHT_ + this.LID_HEIGHT_) * FioiBlockly.trashcanScale - this.bottom_;
+
+  if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_BOTTOM) {
+    this.top_ -= metrics.flyoutHeight;
+  }
+  this.svgGroup_.setAttribute('transform',
+      'translate(' + this.left_ + ',' + this.top_ + ') scale(' + FioiBlockly.trashcanScale + ')');
+};
 
 // Remove some characters which make JavaScript.STATEMENT_PREFIX instructions
 // generation go wrong
@@ -1173,6 +1212,39 @@ Blockly.WorkspaceSvg.prototype.zoom = function(x, y, type) {
   this.setScale(newScale);
 };
 
+FioiBlockly.zoomControlsScale = 0.8;
+
+Blockly.ZoomControls.prototype.position = function() {
+  var metrics = this.workspace_.getMetrics();
+  if (!metrics) {
+    // There are no metrics available (workspace is probably not visible).
+    return;
+  }
+  if (this.workspace_.RTL) {
+    this.left_ = this.MARGIN_SIDE_ + Blockly.Scrollbar.scrollbarThickness;
+    if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_LEFT) {
+      this.left_ += metrics.flyoutWidth;
+      if (this.workspace_.toolbox_) {
+        this.left_ += metrics.absoluteLeft;
+      }
+    }
+  } else {
+    this.left_ = metrics.viewWidth + metrics.absoluteLeft -
+        this.WIDTH_ * FioiBlockly.zoomControlsScale - this.MARGIN_SIDE_ - Blockly.Scrollbar.scrollbarThickness;
+
+    if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_RIGHT) {
+      this.left_ -= metrics.flyoutWidth;
+    }
+  }
+  this.top_ = metrics.viewHeight + metrics.absoluteTop -
+      this.HEIGHT_ * FioiBlockly.zoomControlsScale - this.bottom_;
+  if (metrics.toolboxPosition == Blockly.TOOLBOX_AT_BOTTOM) {
+    this.top_ -= metrics.flyoutHeight;
+  }
+  this.svgGroup_.setAttribute('transform',
+      'translate(' + this.left_ + ',' + this.top_ + ') scale(' + FioiBlockly.zoomControlsScale + ')');
+};
+
 FioiBlockly.Msg.en = {};
 
 FioiBlockly.Msg.en.VARIABLES_DEFAULT_NAME = "element";
@@ -1396,6 +1468,7 @@ FioiBlockly.Msg.fr.EVAL_ERROR_VAR = "cette expression utilise une variable '%1' 
 
 FioiBlockly.Msg.fr.LISTS_APPEND_MSG = "à la liste %1 ajouter l'élément %2";
 FioiBlockly.Msg.fr.LISTS_APPEND_TOOLTIP = "Ajouter un élément à la liste '%1'";
+FioiBlockly.Msg.fr.LISTS_CREATE_WITH_TOO_LARGE = "Taille de la liste trop grande : %1 > taille maximale autorisée %2"
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_FIRST = "au début";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_FROM_END = "à l'indice depuis la fin";
 FioiBlockly.Msg.fr.LISTS_GET_INDEX_FROM_START = "à l'indice";
@@ -2460,6 +2533,10 @@ Blockly.JavaScript.init = function(workspace) {
   } else {
     Blockly.JavaScript.variableDB_.reset();
   }
+
+  // Create a dictionary of external functions to be registered by the
+  // interpreter
+  Blockly.JavaScript.externalFunctions = {};
 };
 
 /**
@@ -2753,6 +2830,27 @@ Blockly.JavaScript['input_num_list'] = function(block) {
   var code = 'input_num_list()';
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
+
+Blockly.JavaScript['lists_repeat'] = function(block) {
+  // Create a list with one element repeated.
+  Blockly.JavaScript.externalFunctions['listsRepeat'] = function(value, n) {
+    if(n > FioiBlockly.maxListSize) {
+      throw Blockly.Msg.LISTS_CREATE_WITH_TOO_LARGE.replace('%1', n).replace('%2', FioiBlockly.maxListSize);
+    }
+    var array = [];
+    for (var i = 0; i < n; i++) {
+      array[i] = value;
+    }
+    return array;
+  };
+  var element = Blockly.JavaScript.valueToCode(block, 'ITEM',
+      Blockly.JavaScript.ORDER_COMMA) || 'null';
+  var repeatCount = Blockly.JavaScript.valueToCode(block, 'NUM',
+      Blockly.JavaScript.ORDER_COMMA) || '0';
+  var code = 'listsRepeat(' + element + ', ' + repeatCount + ')';
+  return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
 
 Blockly.JavaScript['lists_append'] = function(block) {
   // Append
