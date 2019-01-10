@@ -242,6 +242,7 @@ Blockly.DropDownDiv.showPositionedByBlock = function(owner, block,
 // Remove mousedown listener
 Blockly.DropDownDiv.removeListener = function() {
   if(Blockly.DropDownDiv.listenerActive) {
+    Blockly.Touch.clearTouchIdentifier();
     Blockly.unbindEvent_(Blockly.DropDownDiv.listenerActive);
     Blockly.DropDownDiv.listenerActive = false;
   }
