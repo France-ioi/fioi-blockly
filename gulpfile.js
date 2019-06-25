@@ -17,4 +17,4 @@ gulp.task('js', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['js']);
+gulp.task('default', gulp.series('js'));
