@@ -510,6 +510,10 @@ Blockly.FieldNumber.prototype.showEditor_ = function(opt_quietInput) {
       (Blockly.FieldTextInput.FONTSIZE * this.workspace_.scale) + 'pt';
   div.style.fontSize = fontSize;
   htmlInput.style.fontSize = fontSize;
+
+  // Scratch compatibility
+  div.className += ' fieldTextInput';
+
   /** @type {!HTMLInputElement} */
   Blockly.FieldTextInput.htmlInput_ = htmlInput;
   div.appendChild(htmlInput);
@@ -537,7 +541,7 @@ Blockly.FieldNumber.prototype.showEditor_ = function(opt_quietInput) {
        left: posLeft + 'px'},
       function(value) {
         htmlInput.value = value;
-        that.onHtmlInputChange_();
+        that.onHtmlInputChange_({});
       },
       function(value, validated) {
         htmlInput.value = value;
@@ -564,6 +568,8 @@ Blockly.FieldNumber.prototype.showEditor_ = function(opt_quietInput) {
       Blockly.bindEventWithChecks_(htmlInput, 'keypress', this,
       this.onHtmlInputChange_);
   htmlInput.onWorkspaceChangeWrapper_ = this.resizeEditor_.bind(this);
+  // Scratch compatibility
+  htmlInput.onInputWrapper_ = [];
   this.workspace_.addChangeListener(htmlInput.onWorkspaceChangeWrapper_);
 };
 
