@@ -1,3 +1,34 @@
+Blockly.JavaScript['math_arithmetic'] = function(block) {
+  // Basic arithmetic operators, and power.
+  var OPERATORS = {
+    'ADD': [' + ', Blockly.JavaScript.ORDER_ADDITION],
+    'MINUS': [' - ', Blockly.JavaScript.ORDER_SUBTRACTION],
+    'MULTIPLY': [' * ', Blockly.JavaScript.ORDER_MULTIPLICATION],
+    'DIVIDE': [' / ', Blockly.JavaScript.ORDER_DIVISION]
+    // Handled separately :
+    // 'DIVIDEFLOOR'
+    // 'POWER'
+  };
+  var op = block.getFieldValue('OP');
+  var argument0 = Blockly.JavaScript.valueToCode(block, 'A', order) || '0';
+  var argument1 = Blockly.JavaScript.valueToCode(block, 'B', order) || '0';
+  var code;
+  if(op == 'DIVIDEFLOOR') {
+    code = 'Math.floor(' + argument0 + ' / ' + argument1 + ')';
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+  }
+  // Power in JavaScript requires a special case since it has no operator.
+  if(op == 'POWER') {
+    code = 'Math.pow(' + argument0 + ', ' + argument1 + ')';
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+  }
+  var tuple = OPERATORS[op];
+  var operator = tuple[0];
+  var order = tuple[1];
+  code = argument0 + operator + argument1;
+  return [code, order];
+};
+
 Blockly.JavaScript['math_change'] = function(block) {
   // Add to a variable in place.
   var argument0 = Blockly.JavaScript.valueToCode(block, 'DELTA',

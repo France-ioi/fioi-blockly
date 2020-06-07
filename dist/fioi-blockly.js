@@ -1477,6 +1477,9 @@ FioiBlockly.Msg.en.DATA_LISTREPEAT_TITLE = "initialize list %1 with %2 repeated 
 
 FioiBlockly.Msg.en.INVALID_NAME = "Invalid name, please only use letters, some letters with accents, digits (except as first character), and underscore '_'.";
 
+FioiBlockly.Msg.en.MATH_DIVISIONFLOOR_SYMBOL = ' // ';
+FioiBlockly.Msg.en.MATH_ARITHMETIC_TOOLTIP_DIVIDEFLOOR = "Return the whole part of the division of the two numbers.";
+
 FioiBlockly.Msg.es = {};
 
 FioiBlockly.Msg.es.VARIABLES_DEFAULT_NAME = "elemento";
@@ -1656,6 +1659,9 @@ FioiBlockly.Msg.fr.TABLES_3D_GET_TOOLTIP = "Récupère la valeur dans la case [c
 FioiBlockly.Msg.fr.TABLES_VAR_NAME = "tableau";
 FioiBlockly.Msg.fr.TABLES_TOO_BIG = "Dimensions du tableau trop grandes !";
 FioiBlockly.Msg.fr.TABLES_OUT_OF_BOUNDS = "Tentative d'accès à une case hors du tableau !";
+
+FioiBlockly.Msg.fr.MATH_DIVISIONFLOOR_SYMBOL = ' // ';
+FioiBlockly.Msg.fr.MATH_ARITHMETIC_TOOLTIP_DIVIDEFLOOR = "Renvoie la partie entière de la division des deux nombres.";
 
 FioiBlockly.Msg.sl = {};
 
@@ -2344,6 +2350,59 @@ Blockly.Blocks['logic_compare'] = {
   }
 };
 
+
+Blockly.Blocks['math_arithmetic'] = {
+  /**
+   * Block for basic arithmetic operator.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": "%1 %2 %3",
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "A",
+          "check": "Number"
+        },
+        {
+          "type": "field_dropdown",
+          "name": "OP",
+          "options":
+            [[Blockly.Msg.MATH_ADDITION_SYMBOL, 'ADD'],
+             [Blockly.Msg.MATH_SUBTRACTION_SYMBOL, 'MINUS'],
+             [Blockly.Msg.MATH_MULTIPLICATION_SYMBOL, 'MULTIPLY'],
+             [Blockly.Msg.MATH_DIVISION_SYMBOL, 'DIVIDE'],
+             [Blockly.Msg.MATH_DIVISIONFLOOR_SYMBOL, 'DIVIDEFLOOR'],
+             [Blockly.Msg.MATH_POWER_SYMBOL, 'POWER']]
+        },
+        {
+          "type": "input_value",
+          "name": "B",
+          "check": "Number"
+        }
+      ],
+      "inputsInline": true,
+      "output": "Number",
+      "colour": Blockly.Blocks.math.HUE,
+      "helpUrl": Blockly.Msg.MATH_ARITHMETIC_HELPURL
+    });
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    var thisBlock = this;
+    this.setTooltip(function() {
+      var mode = thisBlock.getFieldValue('OP');
+      var TOOLTIPS = {
+        'ADD': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_ADD,
+        'MINUS': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MINUS,
+        'MULTIPLY': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MULTIPLY,
+        'DIVIDE': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDE,
+        'DIVIDEFLOOR': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDEFLOOR,
+        'POWER': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_POWER
+      };
+      return TOOLTIPS[mode];
+    });
+  }
+};
 
 if(Blockly.Blocks['procedures_defnoreturn']) {
   Blockly.Blocks['procedures_defnoreturn'].init = function() {
@@ -3191,6 +3250,37 @@ Blockly.JavaScript['controls_repeat_ext'] = function(block) {
 Blockly.JavaScript['controls_repeat'] =
     Blockly.JavaScript['controls_repeat_ext'];
 
+Blockly.JavaScript['math_arithmetic'] = function(block) {
+  // Basic arithmetic operators, and power.
+  var OPERATORS = {
+    'ADD': [' + ', Blockly.JavaScript.ORDER_ADDITION],
+    'MINUS': [' - ', Blockly.JavaScript.ORDER_SUBTRACTION],
+    'MULTIPLY': [' * ', Blockly.JavaScript.ORDER_MULTIPLICATION],
+    'DIVIDE': [' / ', Blockly.JavaScript.ORDER_DIVISION]
+    // Handled separately :
+    // 'DIVIDEFLOOR'
+    // 'POWER'
+  };
+  var op = block.getFieldValue('OP');
+  var argument0 = Blockly.JavaScript.valueToCode(block, 'A', order) || '0';
+  var argument1 = Blockly.JavaScript.valueToCode(block, 'B', order) || '0';
+  var code;
+  if(op == 'DIVIDEFLOOR') {
+    code = 'Math.floor(' + argument0 + ' / ' + argument1 + ')';
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+  }
+  // Power in JavaScript requires a special case since it has no operator.
+  if(op == 'POWER') {
+    code = 'Math.pow(' + argument0 + ', ' + argument1 + ')';
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+  }
+  var tuple = OPERATORS[op];
+  var operator = tuple[0];
+  var order = tuple[1];
+  code = argument0 + operator + argument1;
+  return [code, order];
+};
+
 Blockly.JavaScript['math_change'] = function(block) {
   // Add to a variable in place.
   var argument0 = Blockly.JavaScript.valueToCode(block, 'DELTA',
@@ -3606,6 +3696,31 @@ Blockly.Python['controls_repeat_ext'] = function(block) {
 };
 
 Blockly.Python['controls_repeat'] = Blockly.Python['controls_repeat_ext'];
+
+Blockly.Python['math_arithmetic'] = function(block) {
+  // Basic arithmetic operators, and power.
+  var OPERATORS = {
+    'ADD': [' + ', Blockly.Python.ORDER_ADDITIVE],
+    'MINUS': [' - ', Blockly.Python.ORDER_ADDITIVE],
+    'MULTIPLY': [' * ', Blockly.Python.ORDER_MULTIPLICATIVE],
+    'DIVIDE': [' / ', Blockly.Python.ORDER_MULTIPLICATIVE],
+    'DIVIDEFLOOR': [' // ', Blockly.Python.ORDER_MULTIPLICATIVE],
+    'POWER': [' ** ', Blockly.Python.ORDER_EXPONENTIATION]
+  };
+  var tuple = OPERATORS[block.getFieldValue('OP')];
+  var operator = tuple[0];
+  var order = tuple[1];
+  var argument0 = Blockly.Python.valueToCode(block, 'A', order) || '0';
+  var argument1 = Blockly.Python.valueToCode(block, 'B', order) || '0';
+  var code = argument0 + operator + argument1;
+  return [code, order];
+  // In case of 'DIVIDE', division between integers returns different results
+  // in Python 2 and 3. However, is not an issue since Blockly does not
+  // guarantee identical results in all languages.  To do otherwise would
+  // require every operator to be wrapped in a function call.  This would kill
+  // legibility of the generated code.
+};
+
 
 Blockly.Python['tables_2d_init'] = function(block) {
   var blockVarName = block.getFieldValue('VAR');

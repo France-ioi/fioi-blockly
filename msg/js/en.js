@@ -59,3 +59,6 @@ FioiBlockly.Msg.en.DATA_ITEMOFLIST_TITLE = "element %1 in %2";
 FioiBlockly.Msg.en.DATA_LISTREPEAT_TITLE = "initialize list %1 with %2 repeated %3 times";
 
 FioiBlockly.Msg.en.INVALID_NAME = "Invalid name, please only use letters, some letters with accents, digits (except as first character), and underscore '_'.";
+
+FioiBlockly.Msg.en.MATH_DIVISIONFLOOR_SYMBOL = ' // ';
+FioiBlockly.Msg.en.MATH_ARITHMETIC_TOOLTIP_DIVIDEFLOOR = "Return the whole part of the division of the two numbers.";
