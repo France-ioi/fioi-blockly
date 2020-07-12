@@ -1320,6 +1320,18 @@ Blockly.WorkspaceSvg.prototype.zoom = function(x, y, type) {
   this.setScale(newScale);
 };
 
+Blockly.WorkspaceSvg.prototype.traceOn = function(armed) {
+  this.traceOn_ = armed;
+  if (this.traceWrapper_) {
+    Blockly.unbindEvent_(this.traceWrapper_);
+    this.traceWrapper_ = null;
+  }
+  if (armed && this.svgBlockCanvas_) {
+    this.traceWrapper_ = Blockly.bindEventWithChecks_(this.svgBlockCanvas_,
+        'blocklySelectChange', this, function() {this.traceOn_ = false;});
+  }
+};
+
 FioiBlockly.zoomControlsScale = 0.8;
 
 Blockly.ZoomControls.prototype.position = function() {
