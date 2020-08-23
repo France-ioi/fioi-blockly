@@ -2363,59 +2363,6 @@ Blockly.Blocks['logic_compare'] = {
 };
 
 
-Blockly.Blocks['math_arithmetic'] = {
-  /**
-   * Block for basic arithmetic operator.
-   * @this Blockly.Block
-   */
-  init: function() {
-    this.jsonInit({
-      "message0": "%1 %2 %3",
-      "args0": [
-        {
-          "type": "input_value",
-          "name": "A",
-          "check": "Number"
-        },
-        {
-          "type": "field_dropdown",
-          "name": "OP",
-          "options":
-            [[Blockly.Msg.MATH_ADDITION_SYMBOL, 'ADD'],
-             [Blockly.Msg.MATH_SUBTRACTION_SYMBOL, 'MINUS'],
-             [Blockly.Msg.MATH_MULTIPLICATION_SYMBOL, 'MULTIPLY'],
-             [Blockly.Msg.MATH_DIVISION_SYMBOL, 'DIVIDE'],
-             [Blockly.Msg.MATH_DIVISIONFLOOR_SYMBOL, 'DIVIDEFLOOR'],
-             [Blockly.Msg.MATH_POWER_SYMBOL, 'POWER']]
-        },
-        {
-          "type": "input_value",
-          "name": "B",
-          "check": "Number"
-        }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": Blockly.Blocks.math.HUE,
-      "helpUrl": Blockly.Msg.MATH_ARITHMETIC_HELPURL
-    });
-    // Assign 'this' to a variable for use in the tooltip closure below.
-    var thisBlock = this;
-    this.setTooltip(function() {
-      var mode = thisBlock.getFieldValue('OP');
-      var TOOLTIPS = {
-        'ADD': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_ADD,
-        'MINUS': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MINUS,
-        'MULTIPLY': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MULTIPLY,
-        'DIVIDE': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDE,
-        'DIVIDEFLOOR': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDEFLOOR,
-        'POWER': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_POWER
-      };
-      return TOOLTIPS[mode];
-    });
-  }
-};
-
 if(Blockly.Blocks['procedures_defnoreturn']) {
   Blockly.Blocks['procedures_defnoreturn'].init = function() {
     var nameField = new Blockly.FieldTextInput('',
@@ -2937,6 +2884,115 @@ Blockly.Python.quote_ = function(string) {
   return '"' + string + '"';
 };
 
+/**
+ * Altered version of the default blockToCode function. Store all blocks in a global variable.
+**/
+Blockly.Python.blockToCodeUnaltered = Blockly.Python.blockToCode;
+
+Blockly.Python.blockToCode = function(block, opt_thisOnly) {
+  if (block) {
+    var func = this[block.type];
+    // Define altered functions for each block
+    if (typeof func === 'function' && func.pyfeAltered === undefined) {
+      this[block.type] = function (block) {
+        if (!block || window.sortedBlocksList === undefined) {
+          return func.call(block, block);
+        }
+        sortedBlocksList.push([block.id, 1]);
+        var code = func.call(block, block);
+
+        if (typeof code == "string") {
+          codeOfBlock[block.id] = String(code)
+        } else if (code) {
+          codeOfBlock[block.id] = String(code[0]);
+        } else {
+          codeOfBlock[block.id] = "";
+        }
+        sortedBlocksList.push([block.id, -1]);
+        return code;
+      }
+      this[block.type].pyfeAltered = true;
+    }
+  }
+  return Blockly.Python.blockToCodeUnaltered(block, opt_thisOnly);
+}
+
+/**
+ * Add blocks ids in comments to a python code
+ * @param {function} Function that takes no parameters and returns the generated python code.
+ * @return {string} Python code.
+ */
+Blockly.Python.blocksToCommentedCode = function(codeGenerator) {
+  window.sortedBlocksList = [];
+  window.codeOfBlock = {};
+
+  var code = String(codeGenerator());
+
+  var codeLines = code.split('\n');
+  var blocksAtLines = new Array(codeLines.length);
+  for (var i = 0; i < blocksAtLines.length; i++) {
+    blocksAtLines[i] = [];
+  }
+
+  // For each block, find where it can be in the code
+  var firstLine = 0;
+  var lastLineStack = [codeLines.length];
+  for (var iEvent = 0; iEvent < sortedBlocksList.length; iEvent++) {
+    var blockId = sortedBlocksList[iEvent][0];
+
+    if (sortedBlocksList[iEvent][1] == -1) {
+      firstLine = lastLineStack.pop()-1;
+    } else {
+      var blockCode = codeOfBlock[blockId].split("\n");
+      // Remove indentation
+      for (var iLine = 0; iLine < blockCode.length; iLine++) {
+        blockCode[iLine] = blockCode[iLine].trim();
+      }
+
+      // Find matching lines
+      var lastLine = lastLineStack[lastLineStack.length-1];
+      var startAt = -1;
+      for (var iCodeLine = firstLine; iCodeLine < lastLine-blockCode.length+1; iCodeLine++) {
+        var blockIsHere = true;
+        for (var iBlockLine = 0; iBlockLine < blockCode.length && blockIsHere; iBlockLine++) {
+          if (codeLines[iCodeLine+iBlockLine].indexOf(blockCode[iBlockLine]) === -1) {
+            blockIsHere = false;
+          }
+        }
+        if (blockIsHere) {
+          startAt = iCodeLine;
+          break;
+        }
+      }
+      // Push sub-interval
+      if (startAt == -1) {
+        lastLineStack.push(lastLineStack[lastLineStack.length-1]);
+        // console.log("Can't match", blockId);
+      } else {
+        firstLine = startAt;
+        lastLineStack.push(startAt+blockCode.length);
+
+        // Mark the maching lines
+        for (var iBlockLine = 0; iBlockLine < blockCode.length; iBlockLine++) {
+          if (blockCode[iBlockLine]) {
+            blocksAtLines[startAt+iBlockLine].push(blockId);
+          }
+        }
+      }
+    }
+  }
+
+  // Add comments to the code
+  for (var i = 0; i < blocksAtLines.length; i++) {
+    if (blocksAtLines[i].length) {
+      codeLines[i] += "#BlockIds=" + blocksAtLines[i].join("'");
+    }
+  }
+
+  window.sortedBlocksList = undefined;
+  window.codeOfBlock = undefined;
+  return codeLines.join("\n");
+}
 Blockly.JavaScript['dict_get'] = function(block) {
   var dict = Blockly.JavaScript.valueToCode(block, 'DICT',
       Blockly.JavaScript.ORDER_MEMBER) || '___';
@@ -3710,31 +3766,6 @@ Blockly.Python['controls_repeat_ext'] = function(block) {
 };
 
 Blockly.Python['controls_repeat'] = Blockly.Python['controls_repeat_ext'];
-
-Blockly.Python['math_arithmetic'] = function(block) {
-  // Basic arithmetic operators, and power.
-  var OPERATORS = {
-    'ADD': [' + ', Blockly.Python.ORDER_ADDITIVE],
-    'MINUS': [' - ', Blockly.Python.ORDER_ADDITIVE],
-    'MULTIPLY': [' * ', Blockly.Python.ORDER_MULTIPLICATIVE],
-    'DIVIDE': [' / ', Blockly.Python.ORDER_MULTIPLICATIVE],
-    'DIVIDEFLOOR': [' // ', Blockly.Python.ORDER_MULTIPLICATIVE],
-    'POWER': [' ** ', Blockly.Python.ORDER_EXPONENTIATION]
-  };
-  var tuple = OPERATORS[block.getFieldValue('OP')];
-  var operator = tuple[0];
-  var order = tuple[1];
-  var argument0 = Blockly.Python.valueToCode(block, 'A', order) || '0';
-  var argument1 = Blockly.Python.valueToCode(block, 'B', order) || '0';
-  var code = argument0 + operator + argument1;
-  return [code, order];
-  // In case of 'DIVIDE', division between integers returns different results
-  // in Python 2 and 3. However, is not an issue since Blockly does not
-  // guarantee identical results in all languages.  To do otherwise would
-  // require every operator to be wrapped in a function call.  This would kill
-  // legibility of the generated code.
-};
-
 
 Blockly.Python['tables_2d_init'] = function(block) {
   var blockVarName = block.getFieldValue('VAR');
