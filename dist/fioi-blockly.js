@@ -1090,7 +1090,7 @@ Blockly.Variables.flyoutCategory = function(workspace) {
         // </block>
         var block = goog.dom.createDom('block');
         block.setAttribute('type', blockNames.get);
-        if (i < options.fixed.length) {
+        if (!options.any && i < options.fixed.length) {
           block.setAttribute('editable', 'false');
         }
         if (i == variableList.length - 1) {
@@ -1122,7 +1122,7 @@ Blockly.Variables.flyoutCategory = function(workspace) {
 
         var block = goog.dom.createDom('block');
         block.setAttribute('type', blockNames.set);
-        if (i < options.fixed.length) {
+        if (!options.any && i < options.fixed.length) {
           block.setAttribute('editable', 'false');
         }
         if (i == variableList.length - 1) {
@@ -1159,7 +1159,7 @@ Blockly.Variables.flyoutCategory = function(workspace) {
 
         var block = goog.dom.createDom('block');
         block.setAttribute('type', blockNames.incr);
-        if (i < options.fixed.length) {
+        if (!options.any && i < options.fixed.length) {
           block.setAttribute('editable', 'false');
         }
         if (i == variableList.length - 1) {
