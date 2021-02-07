@@ -1,11 +1,14 @@
 // Options for the variables flyout
-Blockly.Variables.flyoutOptions = {
-  any: true, // Allow to create any variable
-  anyButton: true, // Add the button to add variables (needs any=true)
-  fixed: [], // List of fixed variables (will create blocks for each of them)
-  includedBlocks: {get: true, set: true, incr: true}, // Blocks to add to the list
-  shortList: true, // Generate set/incr blocks only for the first (non-fixed) variable
-  };
+Blockly.Variables.resetFlyoutOptions = function() {
+  Blockly.Variables.flyoutOptions = {
+    any: false, // Allow to create any variable
+    anyButton: true, // Add the button to add variables (needs any=true)
+    fixed: [], // List of fixed variables (will create blocks for each of them)
+    includedBlocks: {get: true, set: true, incr: true}, // Blocks to add to the list
+    shortList: true, // Generate set/incr blocks only for the first (non-fixed) variable
+    };
+};
+Blockly.Variables.resetFlyoutOptions();
 
 // Construct the blocks required by the flyout for the variable category.
 Blockly.Variables.flyoutCategory = function(workspace) {

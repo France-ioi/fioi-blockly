@@ -7,7 +7,9 @@ if(Blockly.Blocks['procedures_defnoreturn']) {
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE)
         .appendField(nameField, 'NAME')
         .appendField('', 'PARAMS');
-    this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    if(!Blockly.Procedures.flyoutOptions.disableArgs) {
+      this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    }
     if ((this.workspace.options.comments ||
          (this.workspace.options.parentWorkspace &&
           this.workspace.options.parentWorkspace.options.comments)) &&
@@ -35,7 +37,9 @@ if(Blockly.Blocks['procedures_defreturn']) {
     this.appendValueInput('RETURN')
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_RETURN);
-    this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    if(!Blockly.Procedures.flyoutOptions.disableArgs) {
+      this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    }
     if ((this.workspace.options.comments ||
          (this.workspace.options.parentWorkspace &&
           this.workspace.options.parentWorkspace.options.comments)) &&

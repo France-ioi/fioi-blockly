@@ -1,8 +1,11 @@
 // Options for the variables flyout
-Blockly.Procedures.flyoutOptions = {
-  includedBlocks: {noret: true, ret: true, ifret: true}, // Blocks to add to the list
-  };
-
+Blockly.Procedures.resetFlyoutOptions = function() {
+  Blockly.Procedures.flyoutOptions = {
+    disableArgs: false, // Disable the arguments mutator
+    includedBlocks: {noret: false, ret: false, ifret: false}, // Blocks to add to the list
+    };
+};
+Blockly.Procedures.resetFlyoutOptions();
 
 // Allow configuration of the category
 Blockly.Procedures.flyoutCategory = function(workspace) {

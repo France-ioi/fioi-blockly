@@ -629,10 +629,13 @@ Blockly.Names.prototype.safeName_ = function(name) {
 };
 
 // Options for the variables flyout
-Blockly.Procedures.flyoutOptions = {
-  includedBlocks: {noret: true, ret: true, ifret: true}, // Blocks to add to the list
-  };
-
+Blockly.Procedures.resetFlyoutOptions = function() {
+  Blockly.Procedures.flyoutOptions = {
+    disableArgs: false, // Disable the arguments mutator
+    includedBlocks: {noret: false, ret: false, ifret: false}, // Blocks to add to the list
+    };
+};
+Blockly.Procedures.resetFlyoutOptions();
 
 // Allow configuration of the category
 Blockly.Procedures.flyoutCategory = function(workspace) {
@@ -1013,13 +1016,16 @@ Blockly.reindexExpression = function(text, workspace) {
 };
 
 // Options for the variables flyout
-Blockly.Variables.flyoutOptions = {
-  any: true, // Allow to create any variable
-  anyButton: true, // Add the button to add variables (needs any=true)
-  fixed: [], // List of fixed variables (will create blocks for each of them)
-  includedBlocks: {get: true, set: true, incr: true}, // Blocks to add to the list
-  shortList: true, // Generate set/incr blocks only for the first (non-fixed) variable
-  };
+Blockly.Variables.resetFlyoutOptions = function() {
+  Blockly.Variables.flyoutOptions = {
+    any: false, // Allow to create any variable
+    anyButton: true, // Add the button to add variables (needs any=true)
+    fixed: [], // List of fixed variables (will create blocks for each of them)
+    includedBlocks: {get: true, set: true, incr: true}, // Blocks to add to the list
+    shortList: true, // Generate set/incr blocks only for the first (non-fixed) variable
+    };
+};
+Blockly.Variables.resetFlyoutOptions();
 
 // Construct the blocks required by the flyout for the variable category.
 Blockly.Variables.flyoutCategory = function(workspace) {
@@ -2542,7 +2548,9 @@ if(Blockly.Blocks['procedures_defnoreturn']) {
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE)
         .appendField(nameField, 'NAME')
         .appendField('', 'PARAMS');
-    this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    if(!Blockly.Procedures.flyoutOptions.disableArgs) {
+      this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    }
     if ((this.workspace.options.comments ||
          (this.workspace.options.parentWorkspace &&
           this.workspace.options.parentWorkspace.options.comments)) &&
@@ -2570,7 +2578,9 @@ if(Blockly.Blocks['procedures_defreturn']) {
     this.appendValueInput('RETURN')
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_RETURN);
-    this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    if(!Blockly.Procedures.flyoutOptions.disableArgs) {
+      this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    }
     if ((this.workspace.options.comments ||
          (this.workspace.options.parentWorkspace &&
           this.workspace.options.parentWorkspace.options.comments)) &&
