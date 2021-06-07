@@ -1,3 +1,12 @@
+// Always enable touch events, especially as the detection is bad
+// (computers with a touch screen won't be detected)
+goog.events.BrowserFeature.TOUCH_ENABLED = true;
+Blockly.Touch.TOUCH_MAP = {
+  'mousedown': ['touchstart'],
+  'mousemove': ['touchmove'],
+  'mouseup': ['touchend', 'touchcancel']
+};
+
 // Fix case where there's no workspace (we're probably unloading)
 Blockly.onMouseUp_ = function(e) {
   var workspace = Blockly.getMainWorkspace();
