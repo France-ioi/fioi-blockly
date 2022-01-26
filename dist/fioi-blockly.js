@@ -3205,8 +3205,8 @@ Blockly.JavaScript['dict_set_literal'] = function(block) {
   var dict = Blockly.JavaScript.valueToCode(block, 'DICT',
       Blockly.JavaScript.ORDER_MEMBER) || '___';
   var key = block.getFieldValue('ITEM');
-  var value = Blockly.Python.valueToCode(block, 'VAL',
-      Blockly.Python.ORDER_NONE) || '___';
+  var value = Blockly.JavaScript.valueToCode(block, 'VAL',
+      Blockly.JavaScript.ORDER_NONE) || '___';
   var code = dict + '.' + key + ' = ' + value + ';\n';
   return code;
 };
