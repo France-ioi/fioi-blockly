@@ -68,7 +68,7 @@ Blockly.FieldNumber.prototype.showEditor_ = function(opt_quietInput) {
           htmlInput.focus();
           htmlInput.select();
         }
-      });
+      }, {minimum: this.min_, maximum: this.max_, precision: this.precision_});
        
   }
 
