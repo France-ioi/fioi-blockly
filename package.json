@@ -1,0 +1,25 @@
+{
+  "name": "fioi-blockly",
+  "version": "1.0.0",
+  "description": "France-IOI Blockly additions",
+  "main": "dist/fioi-blockly.js",
+  "scripts": {
+    "build": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/France-ioi/fioi-blockly.git"
+  },
+  "author": "France-IOI",
+  "bugs": {
+    "url": "https://github.com/France-ioi/fioi-blockly/issues"
+  },
+  "homepage": "https://github.com/France-ioi/fioi-blockly#readme",
+  "dependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-uglify": "^3.0.2"
+  }
+}
