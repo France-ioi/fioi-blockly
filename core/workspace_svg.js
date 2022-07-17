@@ -1,21 +1,3 @@
-// Fix flyout position, inserting it before the bubble canvas rather than the
-// block canvas
-Blockly.WorkspaceSvg.prototype.addFlyout_ = function() {
-  var workspaceOptions = {
-    disabledPatternId: this.options.disabledPatternId,
-    parentWorkspace: this,
-    RTL: this.RTL,
-    oneBasedIndex: this.options.oneBasedIndex,
-    horizontalLayout: this.horizontalLayout,
-    toolboxPosition: this.options.toolboxPosition
-  };
-  /** @type {Blockly.Flyout} */
-  this.flyout_ = new Blockly.Flyout(workspaceOptions);
-  this.flyout_.autoClose = false;
-  var svgFlyout = this.flyout_.createDom();
-  this.svgGroup_.insertBefore(svgFlyout, this.svgBubbleCanvas_);
-};
-
 // reportValue allows to show a popup next to a block
 Blockly.WorkspaceSvg.prototype.reportValue = function(id, value) {
   var block = this.getBlockById(id);
