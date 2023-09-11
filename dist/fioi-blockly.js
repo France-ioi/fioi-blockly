@@ -632,6 +632,7 @@ Blockly.Names.prototype.safeName_ = function(name) {
 Blockly.Procedures.resetFlyoutOptions = function() {
   Blockly.Procedures.flyoutOptions = {
     disableArgs: false, // Disable the arguments mutator
+    inlineArgs: false, // Put fields inline
     includedBlocks: {noret: false, ret: false, ifret: false}, // Blocks to add to the list
     };
 };
@@ -687,6 +688,9 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
       var block = goog.dom.createDom('block');
       block.setAttribute('type', templateName);
       block.setAttribute('gap', 16);
+      if (Blockly.Procedures.flyoutOptions.inlineArgs) {
+        block.setAttribute('inline', true);
+      }
       var mutation = goog.dom.createDom('mutation');
       mutation.setAttribute('name', name);
       block.appendChild(mutation);
