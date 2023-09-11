@@ -629,14 +629,20 @@ Blockly.Names.prototype.safeName_ = function(name) {
 };
 
 // Options for the variables flyout
-Blockly.Procedures.resetFlyoutOptions = function() {
-  Blockly.Procedures.flyoutOptions = {
-    disableArgs: false, // Disable the arguments mutator
-    inlineArgs: false, // Put fields inline
-    includedBlocks: {noret: false, ret: false, ifret: false}, // Blocks to add to the list
+Blockly.Procedures.resetFlyoutOptions = function (initial) {
+  if (initial) {
+    Blockly.Procedures.flyoutOptions = {
+      disableArgs: false, // Disable the arguments mutator
+      inlineArgs: false, // Put fields inline
+      includedBlocks: { noret: false, ret: false, ifret: false }, // Blocks to add to the list
     };
+  } else {
+    // Keep inlineArgs option
+    Blockly.Procedures.flyoutOptions.disableArgs = false;
+    Blockly.Procedures.includedBlocks = { noret: false, ret: false, ifret: false };
+  }
 };
-Blockly.Procedures.resetFlyoutOptions();
+Blockly.Procedures.resetFlyoutOptions(true);
 
 // Allow configuration of the category
 Blockly.Procedures.flyoutCategory = function(workspace) {
