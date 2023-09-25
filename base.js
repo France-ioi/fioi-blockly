@@ -8,6 +8,13 @@ FioiBlockly.langErrorDisplayed = {};
 
 FioiBlockly.maxListSize = 100;
 
+// Set to null to use the default help behavior
+// Set to false to disable help completely (the button still displays)
+// Set to an object with two functions to enable custom help:
+// * exists : function(block) { return true/false; }
+// * display : function(block) { ... }
+FioiBlockly.helpHooks = false;
+
 // Import messages for a language
 FioiBlockly.loadLanguage = function(lang) {
   if(!FioiBlockly.Msg[lang] && !FioiBlockly.langErrorDisplayed[lang]) {
