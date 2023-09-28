@@ -4,12 +4,12 @@ Blockly.Procedures.resetFlyoutOptions = function (initial) {
     Blockly.Procedures.flyoutOptions = {
       disableArgs: false, // Disable the arguments mutator
       inlineArgs: false, // Put fields inline
-      includedBlocks: { noret: false, ret: false, ifret: false }, // Blocks to add to the list
+      includedBlocks: { noret: false, ret: false, ifret: false, noifret: false }, // Blocks to add to the list
     };
   } else {
     // Keep inlineArgs option
     Blockly.Procedures.flyoutOptions.disableArgs = false;
-    Blockly.Procedures.includedBlocks = { noret: false, ret: false, ifret: false };
+    Blockly.Procedures.includedBlocks = { noret: false, ret: false, ifret: false, noifret: false };
   }
 };
 Blockly.Procedures.resetFlyoutOptions(true);
@@ -44,6 +44,13 @@ Blockly.Procedures.flyoutCategory = function(workspace) {
     // <block type="procedures_ifreturn" gap="16"></block>
     var block = goog.dom.createDom('block');
     block.setAttribute('type', 'procedures_ifreturn');
+    block.setAttribute('gap', 16);
+    xmlList.push(block);
+  }
+  if (incl.noifret && Blockly.Blocks['procedures_return']) {
+    // <block type="procedures_ifreturn" gap="16"></block>
+    var block = goog.dom.createDom('block');
+    block.setAttribute('type', 'procedures_return');
     block.setAttribute('gap', 16);
     xmlList.push(block);
   }
