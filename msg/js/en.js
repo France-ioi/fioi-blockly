@@ -24,6 +24,9 @@ FioiBlockly.Msg.en.TEXT_PRINT_TOOLTIP = "Print the text, number or other value, 
 FioiBlockly.Msg.en.TEXT_PRINT_NOEND_TITLE = "print %1";
 FioiBlockly.Msg.en.TEXT_PRINT_NOEND_TOOLTIP = "Print the text, number or other value, without newline.";
 
+FioiBlockly.Msg.en.TEXT_STR_TITLE = "convert to text %1";
+FioiBlockly.Msg.en.TEXT_STR_TOOLTIP = "Convert a value to text.";
+
 FioiBlockly.Msg.en.LISTS_APPEND_MSG = "to the list %1 add the element %2";
 FioiBlockly.Msg.en.LISTS_APPEND_TOOLTIP = "Add an element to the list '%1'";
 FioiBlockly.Msg.en.LISTS_GET_INDEX_FIRST = "at the beginning";

@@ -68,3 +68,26 @@ Blockly.Blocks['text_eval'] = {
     this.setTooltip(Blockly.Msg.TEXT_EVAL_TOOLTIP);
   }
 };
+
+Blockly.Blocks['text_str'] = {
+  /**
+   * Block to convert to string.
+   * @this Blockly.Block
+   */
+  init: function () {
+    this.jsonInit({
+      "message0": Blockly.Msg.TEXT_STR_TITLE,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "EXPR"
+        }
+      ],
+      "output": "String",
+      "colour": Blockly.Colours ? Blockly.Colours.texts.primary : Blockly.Blocks.texts.HUE,
+      "colourSecondary": Blockly.Colours ? Blockly.Colours.texts.secondary : null,
+      "colourTertiary": Blockly.Colours ? Blockly.Colours.texts.tertiary : null,
+      "tooltip": Blockly.Msg.TEXT_STR_TOOLTIP
+    });
+  }
+};

@@ -14,3 +14,8 @@ Blockly.Python['text_eval'] = function(block) {
     return [reindexExpr, Blockly.Python.ORDER_NONE];
   }
 };
+
+Blockly.Python['text_str'] = function (block) {
+  var expr = Blockly.JavaScript.valueToCode(block, 'EXPR', Blockly.JavaScript.ORDER_NONE) || 'null';
+  return 'str(' + expr + ')';
+}

@@ -28,6 +28,9 @@ FioiBlockly.Msg.fr.TEXT_EVAL_TITLE = "évaluer";
 FioiBlockly.Msg.fr.TEXT_EVAL_TOOLTIP = "Évalue l'expression arithmétique spécifiée.";
 FioiBlockly.Msg.fr.TEXT_EVAL_INVALID = "Attention : %1 ; ce bloc retournera 'faux' !";
 
+FioiBlockly.Msg.fr.TEXT_STR_TITLE = "convertir en texte %1";
+FioiBlockly.Msg.fr.TEXT_STR_TOOLTIP = "Convertir une valeur en texte.";
+
 FioiBlockly.Msg.fr.EVAL_ERROR_SEMICOLON = "le point-virgule ';' n'est pas autorisé";
 FioiBlockly.Msg.fr.EVAL_ERROR_SYNTAX = "l'expression n'est pas syntaxiquement valide";
 FioiBlockly.Msg.fr.EVAL_ERROR_TYPE = "ce type d'expression (%1) n'est pas autorisé";
